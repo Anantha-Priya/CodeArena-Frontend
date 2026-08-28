@@ -1,6 +1,6 @@
 import { apiClient } from './client';
 import type { Page } from '../types/api';
-import type { Difficulty, Problem } from '../types/problem';
+import type { Difficulty, Problem, ProblemPayload } from '../types/problem';
 
 export interface ListProblemsParams {
   difficulty?: Difficulty;
@@ -22,4 +22,16 @@ export function listProblems(params: ListProblemsParams = {}): Promise<Page<Prob
 
 export function getProblem(id: string): Promise<Problem> {
   return apiClient.get(`/api/problems/${id}`);
+}
+
+export function createProblem(payload: ProblemPayload): Promise<Problem> {
+  return apiClient.post('/api/problems', payload);
+}
+
+export function updateProblem(id: number, payload: ProblemPayload): Promise<Problem> {
+  return apiClient.put(`/api/problems/${id}`, payload);
+}
+
+export function deleteProblem(id: number): Promise<void> {
+  return apiClient.delete(`/api/problems/${id}`);
 }

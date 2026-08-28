@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { AdminRoute } from './components/AdminRoute';
 import { AppLayout } from './components/AppLayout';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthProvider';
@@ -28,8 +29,10 @@ function App() {
               <Route path="/contests" element={<Contests />} />
               <Route path="/submissions/my" element={<Submissions />} />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/admin/problems" element={<AdminProblems />} />
-              <Route path="/admin/contests" element={<AdminContests />} />
+              <Route element={<AdminRoute />}>
+                <Route path="/admin/problems" element={<AdminProblems />} />
+                <Route path="/admin/contests" element={<AdminContests />} />
+              </Route>
             </Route>
           </Route>
         </Routes>

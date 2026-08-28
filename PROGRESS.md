@@ -239,13 +239,53 @@ nav via `GET /api/users/me`).
 
 ## Phase 6: Admin Problem Management
 
-- [ ] Done
+- [x] Done
 
 **Built:**
+- `createProblem`/`updateProblem`/`deleteProblem` added to
+  [src/api/problems.ts](src/api/problems.ts); `ProblemPayload` type added to
+  [src/types/problem.ts](src/types/problem.ts) (`Omit<Problem, 'id' | 'createdAt'>`, matching
+  the backend's `ProblemRequest` wire shape exactly).
+- [src/components/AdminRoute.tsx](src/components/AdminRoute.tsx): route guard nested inside
+  `ProtectedRoute`/`AppLayout`, redirects to `/` when `user.role !== 'ADMIN'`. While the
+  profile fetch is still in flight (token set, `user` not yet loaded) it shows a brief
+  "Checking access…" instead of redirecting, so a real admin can't get bounced by a race
+  against `AuthProvider`'s `GET /api/users/me` call.
+- [src/components/ProblemForm.tsx](src/components/ProblemForm.tsx): shared create/edit form
+  for all 9 `ProblemRequest` fields, with a hand-rolled `validate()` mirroring the backend's
+  `@NotBlank`/`@NotNull` rules field-for-field (checked `ProblemRequest.java` directly rather
+  than guessing) — every field is required, so validation fails fast client-side before any
+  network round-trip. On a 403 it shows "You are not authorized..."; on a 400 it falls back to
+  `parseFieldErrors`.
+- [src/pages/Admin/AdminProblems.tsx](src/pages/Admin/AdminProblems.tsx): replaced the Phase 3
+  placeholder. Flat list (all problems, `size=100`, no filters/pagination — this is
+  management, not the Phase 4 browsing UI) with Edit/Delete per row; a "New Problem" button
+  toggles the create form; Edit swaps in the same form pre-filled via the existing problem.
+  Delete calls `window.confirm` before hitting the API; a 403 there shows a page-level
+  "not authorized" banner (delete doesn't route through `ProblemForm`'s own error UI).
+- Wired `AdminRoute` into [src/App.tsx](src/App.tsx) around both `/admin/problems` and
+  `/admin/contests`.
 
 **Decisions/deviations:**
+- Checked the real `ProblemRequest` DTO in the backend source instead of assuming which
+  fields are required — confirmed all 9 are (`@NotBlank` on the 8 strings, `@NotNull` on
+  `difficulty`), so `validate()` requires every field with no optional ones.
+- Admin problem management is intentionally a flat, unpaginated list capped at 100 — the
+  guide doesn't ask for filter/pagination parity with Phase 4 here, and a flat list is more
+  useful for an admin scanning everything to edit/delete.
+- Verified end-to-end in-browser: a plain `USER` account (freshly registered) navigating
+  directly to `/admin/problems` is redirected to `/` (route guard, not just a hidden nav
+  link); as `ADMIN`, submitting the empty create form shows all 9 required-field errors with
+  no network call; creating a valid problem shows it immediately in both the admin list and
+  the Phase 4 Problems list; editing pre-fills every field (including the two sample
+  input/output textareas, confirmed via their actual DOM `.value`, since the accessibility
+  tree didn't surface their text) and the change persists; clicking Delete with the
+  browser's native confirm dialog auto-dismissed (cancel) correctly left the problem in
+  place, and stubbing `window.confirm` to return `true` confirmed the accept path actually
+  deletes it.
 
-**Next:**
+**Next:** Phase 7 — Contests List & Detail (server-driven `UPCOMING`/`ACTIVE`/`ENDED` status,
+polled every 5–10s).
 
 ---
 

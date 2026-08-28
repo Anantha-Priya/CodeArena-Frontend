@@ -13,3 +13,6 @@ export interface Problem {
   sampleOutput: string;
   createdAt: string;
 }
+
+// Matches the backend's ProblemRequest (same shape for create and full-replace update).
+export type ProblemPayload = Omit<Problem, 'id' | 'createdAt'>;
