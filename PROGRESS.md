@@ -148,13 +148,45 @@ nav via `GET /api/users/me`).
 
 ## Phase 4: Problems List Page
 
-- [ ] Done
+- [x] Done
 
 **Built:**
+- [src/types/problem.ts](src/types/problem.ts) (`Difficulty`, `Problem`) and a generic
+  `Page<T>` added to [src/types/api.ts](src/types/api.ts) (Spring Data's page shape — only
+  `GET /api/problems` uses it, per API_REFERENCE.md's gotchas section).
+- [src/api/problems.ts](src/api/problems.ts): `listProblems()` building the
+  `?difficulty=&topic=&page=&size=` query string, all params optional.
+- [src/pages/Problems.tsx](src/pages/Problems.tsx): difficulty `<select>` (EASY/MEDIUM/HARD)
+  and a debounced (400ms) topic text input, both driving the request; 0-indexed pagination
+  using the backend's own `first`/`last`/`number`/`totalPages` flags rather than computing
+  them client-side. Loading skeleton, error banner, and an empty state all covered.
+- Reusable [src/components/DifficultyBadge.tsx](src/components/DifficultyBadge.tsx) (color
+  by difficulty) and [src/components/ListSkeleton.tsx](src/components/ListSkeleton.tsx),
+  meant to be reused by later list-y pages (Contests, Admin Problems, etc).
+- Added a `src/pages/ProblemDetail.tsx` placeholder + `/problems/:id` route so the problem
+  cards have somewhere real to link to ahead of Phase 5.
 
 **Decisions/deviations:**
+- Filter state (`difficulty`, `topic`, `page`) lives in local component state, not the URL —
+  kept simple per the project's "no heavier state library" scope; not required by the guide's
+  verify checklist either.
+- Confirmed via the backend source (`ProblemService.buildSpecification`) that `topic` is an
+  exact-match filter (`cb.equal`), not a substring search — the text input just passes
+  whatever's typed straight through, no partial-match UI implied.
+- Hit an oxlint `set-state-in-effect` warning twice: fixed the page-reset-on-filter-change
+  one cleanly by moving `setPage(0)` into the actual events that change a filter (the select's
+  `onChange`, the topic debounce's timeout callback) instead of a separate effect keyed on
+  `[difficulty, topic]`. Left the other (`setState('loading')` at the top of the fetch effect)
+  as-is — it's the standard "set loading, then fetch" pattern; avoiding it would mean deriving
+  loading state from a request-tracking ref for no real correctness benefit.
+- Verified end-to-end in-browser against the real seeded data (6 problems): temporarily set
+  `PAGE_SIZE = 2` to force multiple pages, confirmed page 2 shows different problems than page
+  1 and Previous/Next disable correctly at the ends, then reverted to `PAGE_SIZE = 10`.
+  Confirmed combined difficulty+topic filtering narrows correctly (`EASY` + `Arrays` → exactly
+  the 2 matching problems), an unmatched filter shows the empty state, and stopping the
+  backend shows the error banner without crashing or falsely triggering the 401 logout path.
 
-**Next:**
+**Next:** Phase 5 — Problem Detail page (`GET /api/problems/{id}`, 404 handling).
 
 ---
 

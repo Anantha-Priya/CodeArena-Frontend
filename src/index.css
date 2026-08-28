@@ -7,6 +7,7 @@
   --accent: #aa3bff;
   --danger: #d1373f;
   --success: #2f9e44;
+  --warning: #b5750a;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
@@ -31,6 +32,7 @@
     --accent: #c084fc;
     --danger: #f06a72;
     --success: #69db7c;
+    --warning: #e0a53f;
   }
 }
 
@@ -220,4 +222,122 @@ button:disabled {
 .banner--success {
   background: color-mix(in srgb, var(--success) 15%, transparent);
   color: var(--success);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.filters select,
+.filters input {
+  font: inherit;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.badge--easy {
+  background: color-mix(in srgb, var(--success) 18%, transparent);
+  color: var(--success);
+}
+
+.badge--medium {
+  background: color-mix(in srgb, var(--warning) 18%, transparent);
+  color: var(--warning);
+}
+
+.badge--hard {
+  background: color-mix(in srgb, var(--danger) 18%, transparent);
+  color: var(--danger);
+}
+
+.problem-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.problem-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.problem-card__link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.problem-card__title {
+  font-weight: 600;
+  color: var(--text-h);
+  flex: 1;
+}
+
+.problem-card__topic {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.empty-state {
+  color: var(--text);
+  padding: 24px 0;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.skeleton-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skeleton-row {
+  height: 52px;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    var(--code-bg) 25%,
+    color-mix(in srgb, var(--code-bg) 50%, var(--border)) 50%,
+    var(--code-bg) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }

@@ -7,6 +7,7 @@ import AdminProblems from './pages/Admin/AdminProblems';
 import Contests from './pages/Contests';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import ProblemDetail from './pages/ProblemDetail';
 import Profile from './pages/Profile';
 import Problems from './pages/Problems';
 import Register from './pages/Register';
@@ -23,6 +24,7 @@ function App() {
             <Route element={<AppLayout />}>
               <Route path="/" element={<Home />} />
               <Route path="/problems" element={<Problems />} />
+              <Route path="/problems/:id" element={<ProblemDetail />} />
               <Route path="/contests" element={<Contests />} />
               <Route path="/submissions/my" element={<Submissions />} />
               <Route path="/profile" element={<Profile />} />
