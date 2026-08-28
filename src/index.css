@@ -44,6 +44,9 @@ body {
 
 #root {
   min-height: 100svh;
+}
+
+.app-content {
   padding: 32px;
 }
 
@@ -80,6 +83,52 @@ code {
 
 .auth-page {
   max-width: 360px;
+  padding: 32px;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.navbar__brand {
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--text-h);
+  text-decoration: none;
+}
+
+.navbar__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  font-size: 15px;
+}
+
+.navbar__links a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.navbar__links a:hover,
+.navbar__links a.active {
+  color: var(--accent);
+}
+
+.navbar__user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.navbar__identity {
+  color: var(--text);
 }
 
 .form {

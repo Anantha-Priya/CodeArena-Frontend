@@ -1,9 +1,10 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { register as registerRequest } from '../api/auth';
 import { ApiError } from '../api/client';
 import { parseFieldErrors } from '../api/errors';
 import { PasswordField } from '../components/PasswordField';
+import { useAuth } from '../hooks/useAuth';
 
 interface FieldErrors {
   username?: string;
@@ -19,6 +20,11 @@ export default function Register() {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();

@@ -98,13 +98,51 @@ nav via `GET /api/users/me`).
 
 ## Phase 3: Protected Routing & App Shell
 
-- [ ] Done
+- [x] Done
 
 **Built:**
+- [src/components/ProtectedRoute.tsx](src/components/ProtectedRoute.tsx): redirects to
+  `/login` when unauthenticated, otherwise renders the nested route (`<Outlet />`).
+- [src/components/AppLayout.tsx](src/components/AppLayout.tsx) +
+  [src/components/Navbar.tsx](src/components/Navbar.tsx): persistent shell (navbar + content
+  area) wrapping all protected routes. Navbar shows Problems/Contests/My
+  Submissions/Profile to everyone, Admin: Problems/Admin: Contests only when
+  `user.role === 'ADMIN'`, plus username · rating and a Log out button.
+- [src/types/user.ts](src/types/user.ts) + [src/api/users.ts](src/api/users.ts): `getMe()`
+  calling `GET /api/users/me`.
+- `AuthProvider` now also fetches and stores the user profile (`user` in context) whenever the
+  token is set — on login and on a fresh page load with a persisted token — so the navbar's
+  role-aware links are correct in both cases. `user` is reset to `null` at the actual events
+  that clear/replace the token (login, logout, forced 401-logout) rather than inferred inside
+  the fetch effect, per an oxlint `set-state-in-effect` catch.
+- App route tree in [src/App.tsx](src/App.tsx): `/login` and `/register` stay public;
+  everything else sits behind `ProtectedRoute` → `AppLayout`. Added placeholder pages for the
+  routes the navbar links to ahead of their real phases: Problems, Contests, Submissions,
+  Profile, and `src/pages/Admin/{AdminProblems,AdminContests}.tsx` — each just a heading for
+  now, so the nav has somewhere real to go instead of a dead link.
+- Login/Register now redirect to `/` if the user is already authenticated (visiting either
+  page mid-session bounces back to the app instead of re-showing the form).
+- Simplified `Home.tsx` back to just the health check (plus a username greeting) now that the
+  navbar owns login/logout — removed the Phase 2 stand-in links/button.
 
 **Decisions/deviations:**
+- **Backend contract gap, resolved by editing the backend (with the user's explicit go-ahead,
+  not on my own initiative):** `GET /api/users/me` and the JWT itself did not expose the
+  user's role anywhere (confirmed by reading `JwtService.generateToken`,
+  `UserProfileResponse`, and `UserController` — the JWT only carries `sub`/`iat`/`exp`, and
+  the response only had `username`/`rating`/`problemsSolved`/`contestsJoined`), even though
+  the build guide's Phase 3 prompt assumes role comes back from that endpoint. Flagged this to
+  the user; they added a `role` field to `UserProfileResponse` (typed as the `Role` enum,
+  serializes as `"USER"`/`"ADMIN"`) and populated it in `UserService.getMyProfile` themselves
+  in the backend project. Frontend types `role` as `'USER' | 'ADMIN'` in
+  [src/types/user.ts](src/types/user.ts) to match.
+- Verified end-to-end in-browser: logged-out direct navigation to `/problems` redirects to
+  `/login`; logging in as a plain `USER` hides both admin links; promoted that same account to
+  `ADMIN` directly in MySQL, logged out/in again (role is read at login time per
+  API_REFERENCE.md's gotcha note), and the admin links appeared; refreshing on `/admin/problems`
+  while authenticated preserved both the route and the admin nav.
 
-**Next:**
+**Next:** Phase 4 — Problems list page (filterable, paginated, backed by `GET /api/problems`).
 
 ---
 
