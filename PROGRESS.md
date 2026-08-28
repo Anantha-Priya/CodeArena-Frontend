@@ -192,6 +192,41 @@ nav via `GET /api/users/me`).
 
 ## Phase 5: Problem Detail Page
 
+- [x] Done
+
+**Built:**
+- `getProblem(id)` added to [src/api/problems.ts](src/api/problems.ts) (`GET
+  /api/problems/{id}`).
+- [src/pages/ProblemDetail.tsx](src/pages/ProblemDetail.tsx): reads `:id` via `useParams`,
+  renders title, `DifficultyBadge`, topic, description (as prose), and constraints/input
+  format/output format/sample input/sample output each in a monospace `<pre>` block.
+  Loading, not-found, and generic-error states all covered; no submit action yet (that's
+  Phase 10, tied to an active contest).
+- Replaced the Phase 4 `ProblemDetail` placeholder and its route with the real page — same
+  `/problems/:id` route.
+
+**Decisions/deviations:**
+- Checked the backend's actual error behavior for bad ids rather than assuming: a numeric id
+  that doesn't exist returns the documented `404 {status, message}` shape, but a *non-numeric*
+  id (e.g. `/problems/abc`) returns a plain `400` from Spring's default handler with a
+  completely different body shape (`{timestamp, status, error, path}` — no `message` field).
+  My existing API client already degrades gracefully on that (falls back to a generic
+  message), and since either case means "this id doesn't resolve to a real problem," both
+  404 and 400 are treated as the same "Problem not found" state here.
+- Same accepted `set-state-in-effect` oxlint pattern as Phase 4's fetch effect (set loading,
+  then fetch) — consistent call, not re-litigated.
+- Verified end-to-end in-browser: a real id (5, "Two Sum") renders all six sections
+  correctly; a well-formed-but-nonexistent id (99999) and a malformed id (`abc`) both show
+  the not-found state without an error-boundary crash; clicking a problem card from the
+  Problems list correctly navigates to its detail page and renders the right difficulty
+  badge color (confirmed `badge--medium` for a MEDIUM problem).
+
+**Next:** Phase 6 — Admin Problem Management (create/edit/delete, `ROLE_ADMIN`-gated).
+
+---
+
+## Phase 5: Problem Detail Page
+
 - [ ] Done
 
 **Built:**

@@ -341,3 +341,51 @@ button:disabled {
     background-position: -200% 0;
   }
 }
+
+.problem-detail {
+  max-width: 720px;
+}
+
+.problem-detail__header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.problem-detail__header h1 {
+  margin: 0;
+}
+
+.problem-detail__topic {
+  color: var(--text);
+  font-size: 15px;
+}
+
+.problem-detail section {
+  margin-top: 28px;
+}
+
+.problem-detail h2 {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0 0 8px;
+}
+
+.problem-detail__prose {
+  white-space: pre-wrap;
+  color: var(--text-h);
+}
+
+.problem-detail__code {
+  font-family: var(--mono);
+  font-size: 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: var(--code-bg);
+  color: var(--text-h);
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin: 0;
+}

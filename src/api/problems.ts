@@ -19,3 +19,7 @@ export function listProblems(params: ListProblemsParams = {}): Promise<Page<Prob
   const qs = query.toString();
   return apiClient.get(`/api/problems${qs ? `?${qs}` : ''}`);
 }
+
+export function getProblem(id: string): Promise<Problem> {
+  return apiClient.get(`/api/problems/${id}`);
+}
