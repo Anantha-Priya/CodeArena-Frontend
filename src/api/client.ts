@@ -2,6 +2,19 @@ import type { ApiErrorBody } from '../types/api';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080';
 
+// Module-level, set by AuthContext — lets this plain module (outside the React tree)
+// attach the current token to every request and react to a 401 from any endpoint.
+let authToken: string | null = null;
+let onUnauthorized: (() => void) | null = null;
+
+export function setAuthToken(token: string | null): void {
+  authToken = token;
+}
+
+export function setUnauthorizedHandler(handler: (() => void) | null): void {
+  onUnauthorized = handler;
+}
+
 export class ApiError extends Error {
   status: number;
 
@@ -23,6 +36,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     method: options.method ?? 'GET',
     headers: {
       'Content-Type': 'application/json',
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       ...options.headers,
     },
     body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
@@ -44,6 +58,15 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
       data && typeof data === 'object' && 'message' in data
         ? (data as ApiErrorBody)
         : { status: response.status, message: `Request failed with status ${response.status}` };
+
+    // Only treat this as "session expired" if we actually had a token attached — a 401
+    // from the login endpoint itself (wrong credentials, no token yet) should just be
+    // handled by the caller (e.g. the Login page), not trigger a global logout/redirect.
+    if (response.status === 401 && authToken) {
+      authToken = null;
+      onUnauthorized?.();
+    }
+
     throw new ApiError(body);
   }
 
