@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { register as registerRequest } from '../api/auth';
 import { ApiError } from '../api/client';
 import { parseFieldErrors } from '../api/errors';
+import { PasswordField } from '../components/PasswordField';
 
 interface FieldErrors {
   username?: string;
@@ -66,18 +67,15 @@ export default function Register() {
           />
           {fieldErrors.email && <span className="field-error">{fieldErrors.email}</span>}
         </label>
-        <label className="field">
-          Password
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            minLength={6}
-            autoComplete="new-password"
-          />
-          {fieldErrors.password && <span className="field-error">{fieldErrors.password}</span>}
-        </label>
+        <PasswordField
+          label="Password"
+          value={password}
+          onChange={setPassword}
+          required
+          minLength={6}
+          autoComplete="new-password"
+          error={fieldErrors.password}
+        />
         <button type="submit" disabled={submitting}>
           {submitting ? 'Creating account…' : 'Register'}
         </button>
