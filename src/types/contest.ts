@@ -12,4 +12,5 @@ export type ContestStatus = 'UPCOMING' | 'ACTIVE' | 'ENDED';
 export interface ContestStatusInfo {
   status: ContestStatus;
   remainingSeconds: number;
+  hasJoined: boolean;
 }

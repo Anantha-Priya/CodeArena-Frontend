@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ApiError } from '../api/client';
-import { getContest, getContestProblems } from '../api/contests';
+import { getContest, getContestProblems, joinContest } from '../api/contests';
 import { DifficultyBadge } from '../components/DifficultyBadge';
 import { ListSkeleton } from '../components/ListSkeleton';
 import { StatusPill } from '../components/StatusPill';
@@ -12,13 +12,20 @@ import type { Problem } from '../types/problem';
 type LoadState = 'loading' | 'loaded' | 'not-found' | 'error';
 type ProblemsLoadState = 'loading' | 'loaded' | 'error';
 
+interface JoinMessage {
+  type: 'error' | 'info';
+  text: string;
+}
+
 export default function ContestDetail() {
   const { id } = useParams<{ id: string }>();
   const [contest, setContest] = useState<Contest | null>(null);
   const [loadState, setLoadState] = useState<LoadState>('loading');
   const [problems, setProblems] = useState<Problem[]>([]);
   const [problemsLoadState, setProblemsLoadState] = useState<ProblemsLoadState>('loading');
-  const { status, remainingSeconds } = useContestStatus(id ?? '');
+  const [joining, setJoining] = useState(false);
+  const [joinMessage, setJoinMessage] = useState<JoinMessage | null>(null);
+  const { status, remainingSeconds, hasJoined, refetch } = useContestStatus(id ?? '');
 
   useEffect(() => {
     if (!id) return;
@@ -66,6 +73,34 @@ export default function ContestDetail() {
     };
   }, [id]);
 
+  async function handleJoin() {
+    if (!id) return;
+
+    setJoining(true);
+    setJoinMessage(null);
+
+    try {
+      await joinContest(id);
+      // Resync immediately rather than waiting for the next scheduled poll, so the
+      // button flips to "Joined" right away.
+      refetch();
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        setJoinMessage({ type: 'info', text: 'You’ve already joined this contest.' });
+        refetch(); // our local hasJoined was stale — resync it too
+      } else if (err instanceof ApiError && err.status === 400) {
+        setJoinMessage({ type: 'error', text: err.message });
+      } else {
+        setJoinMessage({
+          type: 'error',
+          text: err instanceof Error ? err.message : 'Something went wrong. Please try again.',
+        });
+      }
+    } finally {
+      setJoining(false);
+    }
+  }
+
   if (loadState === 'not-found') {
     return (
       <div>
@@ -97,6 +132,24 @@ export default function ContestDetail() {
           {formatCountdown(remainingSeconds)}
         </p>
       )}
+
+      <div className="contest-detail__join">
+        {hasJoined === true && (
+          <button type="button" className="button--secondary" disabled>
+            Joined
+          </button>
+        )}
+        {hasJoined === false && status !== 'ENDED' && (
+          <button type="button" onClick={handleJoin} disabled={joining}>
+            {joining ? 'Joining…' : 'Join Contest'}
+          </button>
+        )}
+        {joinMessage && (
+          <p className={`banner ${joinMessage.type === 'error' ? 'banner--error' : 'banner--info'}`}>
+            {joinMessage.text}
+          </p>
+        )}
+      </div>
 
       <p className="problem-detail__prose">{contest.description}</p>
 

@@ -20,3 +20,7 @@ export function getContestStatus(id: string): Promise<ContestStatusInfo> {
 export function getContestProblems(id: string): Promise<Problem[]> {
   return apiClient.get(`/api/contests/${id}/problems`);
 }
+
+export function joinContest(id: string): Promise<void> {
+  return apiClient.post(`/api/contests/${id}/join`);
+}

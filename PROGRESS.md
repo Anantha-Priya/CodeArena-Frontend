@@ -355,13 +355,58 @@ polled every 5–10s).
 
 ## Phase 8: Contest Join Flow
 
-- [ ] Done
+- [x] Done
 
 **Built:**
+- `joinContest(id)` added to [src/api/contests.ts](src/api/contests.ts) (`POST
+  /api/contests/{id}/join`, no body).
+- [src/hooks/useContestStatus.ts](src/hooks/useContestStatus.ts) now also exposes
+  `hasJoined` (from the status response) and a `refetch()` function that triggers an
+  immediate poll instead of waiting for the next scheduled one — used right after a
+  successful join so the button flips state without a delay.
+- [src/pages/ContestDetail.tsx](src/pages/ContestDetail.tsx): a Join area under the
+  countdown. Shows "Join Contest" only when `hasJoined === false` and `status !== 'ENDED'`;
+  shows a disabled "Joined" button when `hasJoined === true`; shows neither once ended
+  without having joined. A 409 shows an info banner ("You've already joined this contest.")
+  and also triggers `refetch()` to correct any stale local state; a 400 (ended) shows the
+  backend's own message verbatim; anything else falls back to a generic error banner. None
+  of this touched Phase 7's status polling, countdown, or contests list.
 
 **Decisions/deviations:**
+- **Backend contract gap, same category as Phase 3/7 — resolved with the user's go-ahead.**
+  There was no way for the frontend to know if the current user had already joined a given
+  contest: `ContestParticipantRepository.existsByUserIdAndContestId` existed and was already
+  used internally by `join()`, but nothing exposed it for reading. Flagged it with a
+  recommended fix (add `hasJoined` to `ContestStatusResponse`, populated via a new
+  `ContestParticipantService.hasJoined()` reusing the existing repository check, wired into
+  the already-`@AuthenticationPrincipal`-aware `/status` endpoint); the user applied it
+  verbatim in the backend project. Confirmed live via curl before touching any frontend
+  code: `hasJoined` correctly starts `false`, flips to `true` immediately after a real
+  `POST .../join`, and a duplicate join returns `409 {"message":"Already joined this
+  contest"}` while an ended-contest join returns `400 {"message":"Contest has already
+  ended"}` — both matching the error shape the UI is built to handle.
+  - Mid-session gotcha: a stale orphaned backend process was still bound to port 8080 from
+    an earlier turn, serving the pre-`hasJoined` build even after the source files were
+    edited (JVMs don't hot-reload). Killed it and started fresh before the new field showed
+    up — worth remembering for future phases: a passing health check doesn't guarantee
+    you're talking to freshly-compiled code after a backend source change.
+- Verified end-to-end in-browser across two sessions (the browser tab was interrupted
+  mid-click in the first one, resumed cleanly in the second — confirmed via `git status`/
+  `git diff` that the Phase 8 code was already fully written and just needed
+  re-verification, not re-building): a fresh user sees "Join Contest" on an `ACTIVE`
+  contest; clicking it flips immediately to a disabled "Joined" with no page reload; a full
+  refresh preserves the joined state (fetched fresh from the backend, not cached
+  client-side); forcing the real API call a second time for an already-joined contest
+  returns the exact `409` shape the catch block expects, and forcing it against a contest
+  that ended since being joined returns the exact `400` shape — both confirmed directly
+  against the running backend rather than assumed. Also reproduced the 409 through genuine
+  concurrent joins (joined the same contest from a second account via direct API call while
+  a stale "Join Contest" page sat open) — the natural 7s poll closed the race window before
+  the click could land, which is itself a correctness signal that the poller keeps the UI
+  honest without user action.
 
-**Next:**
+**Next:** Phase 9 — Admin Contest Management (create contest, attach problems,
+`end_time > start_time` client-side validation).
 
 ---
 

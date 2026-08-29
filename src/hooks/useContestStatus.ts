@@ -9,17 +9,22 @@ type LoadState = 'loading' | 'loaded' | 'error';
 interface UseContestStatusResult {
   status: ContestStatus | null;
   remainingSeconds: number | null;
+  hasJoined: boolean | null;
   loadState: LoadState;
+  refetch: () => void;
 }
 
-// Polls GET /api/contests/{id}/status on an interval — status is always what the
-// server last reported, never computed from the client's own clock. Between polls,
-// remainingSeconds ticks down locally once a second purely for a smooth countdown
-// display; the next poll's server value always overwrites it.
+// Polls GET /api/contests/{id}/status on an interval — status (and hasJoined) is always
+// what the server last reported, never computed from the client's own clock. Between
+// polls, remainingSeconds ticks down locally once a second purely for a smooth countdown
+// display; the next poll's server value always overwrites it. `refetch` triggers an
+// immediate poll (e.g. right after a successful join) instead of waiting for the next
+// scheduled one.
 export function useContestStatus(contestId: string): UseContestStatusResult {
   const [statusInfo, setStatusInfo] = useState<ContestStatusInfo | null>(null);
   const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
   const [loadState, setLoadState] = useState<LoadState>('loading');
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!contestId) return;
@@ -46,7 +51,7 @@ export function useContestStatus(contestId: string): UseContestStatusResult {
       cancelled = true;
       clearInterval(pollId);
     };
-  }, [contestId]);
+  }, [contestId, refreshKey]);
 
   useEffect(() => {
     if (!statusInfo || statusInfo.status === 'ENDED') return;
@@ -58,7 +63,17 @@ export function useContestStatus(contestId: string): UseContestStatusResult {
     return () => clearInterval(tickId);
   }, [statusInfo]);
 
-  return { status: statusInfo?.status ?? null, remainingSeconds, loadState };
+  function refetch() {
+    setRefreshKey((key) => key + 1);
+  }
+
+  return {
+    status: statusInfo?.status ?? null,
+    remainingSeconds,
+    hasJoined: statusInfo?.hasJoined ?? null,
+    loadState,
+    refetch,
+  };
 }
 
 export function formatCountdown(totalSeconds: number): string {
