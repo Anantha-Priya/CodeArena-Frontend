@@ -641,3 +641,36 @@ button:disabled {
 .submission-status--compilation_error {
   color: var(--danger);
 }
+
+.contest-detail__leaderboard-link {
+  margin-top: 12px;
+}
+
+.leaderboard-table {
+  width: 100%;
+  max-width: 480px;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.leaderboard-table th {
+  color: var(--text);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.leaderboard-table td {
+  color: var(--text-h);
+}
+
+.leaderboard-row--me {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  font-weight: 600;
+}

@@ -519,13 +519,37 @@ reason messaging: not joined / not active / problem not in contest).
 
 ## Phase 11: Leaderboard Page
 
-- [ ] Done
+- [x] Done
 
 **Built:**
+- `LeaderboardEntry` type added to [src/types/leaderboard.ts](src/types/leaderboard.ts);
+  `getContestLeaderboard` added to [src/api/contests.ts](src/api/contests.ts) (`GET
+  /api/contests/{id}/leaderboard`).
+- [src/pages/Leaderboard.tsx](src/pages/Leaderboard.tsx) at the new `/contests/:id/leaderboard`
+  route: rank/username/score table rendered in exactly the order the backend returns it (no
+  client-side sort), with the logged-in user's own row (matched by username via `useAuth()`)
+  visually highlighted. Fetches the contest title too (same pattern as Phase 10's submission
+  section) for the heading, falling back gracefully if that fetch fails. 404/400 → not-found
+  state; a genuinely empty contest (no participants) shows its own distinct message
+  ("No one has joined this contest yet.") rather than an empty table.
+- Added a "View Leaderboard" link on [ContestDetail.tsx](src/pages/ContestDetail.tsx).
 
 **Decisions/deviations:**
+- Checked `LeaderboardService` directly rather than assuming: the entry shape is exactly
+  `{rank, username, score}`, and the "+10 participating / +50 top-3" rating bonus the API
+  reference mentions is guarded per-participant (`participant.isRatingApplied()`) so
+  re-fetching after a contest ends is idempotent — confirmed this meant a single fetch on
+  mount is correct and sufficient; no polling needed the way contest status is polled, and
+  no special guard needed against "viewing it twice."
+- Verified end-to-end in-browser: seeded a fresh `ACTIVE` contest, joined it with two real
+  accounts, and had each submit an `ACCEPTED` solution to a different-difficulty problem
+  (200 and 100 points) — the rendered table matched the backend's own rank order exactly,
+  and the logged-in account's row (not the higher-ranked one) carried the highlight class
+  while the other row didn't. Also confirmed a contest with zero participants shows the
+  distinct empty state, and a nonexistent contest id shows the not-found state without
+  crashing.
 
-**Next:**
+**Next:** Phase 12 — Profile Page (read-only `GET /api/users/me` stat cards).
 
 ---
 

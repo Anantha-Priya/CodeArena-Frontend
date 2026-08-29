@@ -8,6 +8,7 @@ import AdminProblems from './pages/Admin/AdminProblems';
 import ContestDetail from './pages/ContestDetail';
 import Contests from './pages/Contests';
 import Home from './pages/Home';
+import Leaderboard from './pages/Leaderboard';
 import Login from './pages/Login';
 import ProblemDetail from './pages/ProblemDetail';
 import Profile from './pages/Profile';
@@ -29,6 +30,7 @@ function App() {
               <Route path="/problems/:id" element={<ProblemDetail />} />
               <Route path="/contests" element={<Contests />} />
               <Route path="/contests/:id" element={<ContestDetail />} />
+              <Route path="/contests/:id/leaderboard" element={<Leaderboard />} />
               <Route path="/submissions/my" element={<Submissions />} />
               <Route path="/profile" element={<Profile />} />
               <Route element={<AdminRoute />}>

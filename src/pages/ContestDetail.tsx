@@ -151,6 +151,10 @@ export default function ContestDetail() {
         )}
       </div>
 
+      <p className="contest-detail__leaderboard-link">
+        <Link to={`/contests/${contest.id}/leaderboard`}>View Leaderboard</Link>
+      </p>
+
       <p className="problem-detail__prose">{contest.description}</p>
 
       <dl className="contest-detail__meta">
