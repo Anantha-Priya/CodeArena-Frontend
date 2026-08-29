@@ -581,13 +581,55 @@ reason messaging: not joined / not active / problem not in contest).
 
 ## Phase 13: Polish — Errors, Loading, Responsiveness
 
-- [ ] Done
+- [x] Done
 
 **Built:**
+- **Consistent error handling:** added `getErrorMessage(err, fallback?)` to
+  [src/api/errors.ts](src/api/errors.ts) and a shared
+  [src/components/ErrorBanner.tsx](src/components/ErrorBanner.tsx), then swept every page and
+  form across the app (Login, Register, Problems, ProblemDetail, Contests, ContestDetail,
+  AdminProblems, AdminContests, ContestProblemsPanel, ProblemForm, Leaderboard, Submissions,
+  Profile) to use them instead of each one repeating its own
+  `err instanceof Error ? err.message : 'Something went wrong...'` ternary and its own
+  `<p className="banner banner--error">` markup. Same visual result everywhere, one place to
+  change it. Deliberately kept the couple of genuinely-different cases as-is: the join flow's
+  dual error/info banner (`ContestDetail.tsx`) isn't pure error state, so it doesn't go
+  through `ErrorBanner`, and specific messages that are already exactly what the backend
+  authored (403 "not authorized", the three submission-rejection reasons, 400 validation
+  strings routed through `parseFieldErrors`) are left untouched — only the generic fallback
+  branches were consolidated.
+- **Loading skeletons:** replaced the plain "Loading X…" text states in `ProblemDetail`,
+  `ContestDetail`, `Leaderboard`, and `Profile` with `<ListSkeleton />` (reusing the Phase 4
+  component rather than building bespoke shapes per page). Every data-fetching page now shows
+  a skeleton instead of blank/text-only loading — audited the full page list to confirm
+  (`Home`'s one-line "Checking backend…" was deliberately left alone; it's a single status
+  line, not a list/detail fetch).
+- **Responsive layout:** found and fixed a real overflow bug — `.admin-problem-row` and
+  `.admin-contest-row__header` used `margin-left: auto` with no `flex-wrap`, so a long problem
+  title (e.g. "Merge Intervals") pushed the Edit/Delete/Manage-Problems buttons off the right
+  edge of the screen at mobile widths, clipping "Delete" to just "D". Added `flex-wrap: wrap`
+  to both so actions drop to their own row instead of overflowing.
 
 **Decisions/deviations:**
+- Field-level 400 mapping (`parseFieldErrors`) was already applied everywhere the backend
+  can return combined validation strings (Register, `ProblemForm`, `AdminContests`'s create
+  form) since Phase 2/6/9 — audited this specifically for Phase 13 and found no gaps, so no
+  changes needed there.
+- No global toast-notification system was built. The guide's wording ("toast/banner")
+  explicitly allows either, and this app's errors are mostly persistent/contextual/actionable
+  (join rejections, submission rejections, field errors) rather than transient — an inline
+  banner next to the thing that failed is the better fit than a floating toast that
+  disappears after a few seconds. The consolidation work here achieves the actual goal
+  ("consistently instead of each page reinventing it") without changing that UX.
+- Verified responsively in-browser at 375×812 (mobile preset) across every major page —
+  Problems, ProblemDetail, ContestDetail, Submissions/Leaderboard tables (confirmed
+  `.table-wrapper`'s horizontal scroll works instead of breaking layout), AdminProblems,
+  AdminContests (including the create-contest form and the expanded `ContestProblemsPanel`),
+  Profile, Login, Register — found and fixed the admin-row overflow bug above, confirmed
+  everything else already held up cleanly with no other changes needed.
 
-**Next:**
+**Next:** Phase 14 — Deployment & Resume Polish (production build, hosting, README, commit
+history review).
 
 ---
 

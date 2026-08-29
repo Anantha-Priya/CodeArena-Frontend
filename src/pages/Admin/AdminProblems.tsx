@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { ApiError } from '../../api/client';
+import { getErrorMessage } from '../../api/errors';
 import { createProblem, deleteProblem, listProblems, updateProblem } from '../../api/problems';
 import { DifficultyBadge } from '../../components/DifficultyBadge';
+import { ErrorBanner } from '../../components/ErrorBanner';
 import { ListSkeleton } from '../../components/ListSkeleton';
 import { ProblemForm, type ProblemFormState } from '../../components/ProblemForm';
 import type { Problem, ProblemPayload } from '../../types/problem';
@@ -72,7 +74,7 @@ export default function AdminProblems() {
       if (err instanceof ApiError && err.status === 403) {
         setActionError('You are not authorized to perform this action.');
       } else {
-        setActionError(err instanceof Error ? err.message : 'Failed to delete the problem.');
+        setActionError(getErrorMessage(err, 'Failed to delete the problem.'));
       }
     }
   }
@@ -86,7 +88,7 @@ export default function AdminProblems() {
     <div>
       <h1>Admin: Problems</h1>
 
-      {actionError && <p className="banner banner--error">{actionError}</p>}
+      {actionError && <ErrorBanner message={actionError} />}
 
       {editingProblem ? (
         <>
@@ -110,7 +112,7 @@ export default function AdminProblems() {
       )}
 
       {loadState === 'loading' && <ListSkeleton />}
-      {loadState === 'error' && <p className="banner banner--error">Couldn&apos;t load problems.</p>}
+      {loadState === 'error' && <ErrorBanner message="Couldn't load problems." />}
       {loadState === 'loaded' && (
         <ul className="problem-list admin-problem-list">
           {problems.map((problem) => (

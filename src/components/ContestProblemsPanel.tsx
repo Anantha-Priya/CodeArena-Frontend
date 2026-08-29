@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { ApiError } from '../api/client';
 import { attachProblemToContest, getContestProblems } from '../api/contests';
+import { getErrorMessage } from '../api/errors';
 import { listProblems } from '../api/problems';
 import type { Problem } from '../types/problem';
 import { DifficultyBadge } from './DifficultyBadge';
+import { ErrorBanner } from './ErrorBanner';
 import { ListSkeleton } from './ListSkeleton';
 
 // Admin management, not the Phase 4 browsing UI — fetch every problem in one page.
@@ -52,7 +54,7 @@ export function ContestProblemsPanel({ contestId }: { contestId: number }) {
       } else if (err instanceof ApiError && err.status === 403) {
         setError('You are not authorized to perform this action.');
       } else {
-        setError(err instanceof Error ? err.message : 'Failed to attach the problem.');
+        setError(getErrorMessage(err, 'Failed to attach the problem.'));
       }
     } finally {
       setAttachingId(null);
@@ -64,12 +66,12 @@ export function ContestProblemsPanel({ contestId }: { contestId: number }) {
   }
 
   if (loadState === 'error') {
-    return <p className="banner banner--error">Couldn&apos;t load problems. Please try again.</p>;
+    return <ErrorBanner message="Couldn't load problems. Please try again." />;
   }
 
   return (
     <div className="contest-problems-panel">
-      {error && <p className="banner banner--error">{error}</p>}
+      {error && <ErrorBanner message={error} />}
 
       {allProblems.length === 0 ? (
         <p className="empty-state">No problems exist yet — create some in Admin: Problems first.</p>

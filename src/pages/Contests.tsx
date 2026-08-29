@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { listContests } from '../api/contests';
+import { ErrorBanner } from '../components/ErrorBanner';
 import { ListSkeleton } from '../components/ListSkeleton';
 import { StatusPill } from '../components/StatusPill';
 import { useContestStatus } from '../hooks/useContestStatus';
@@ -43,7 +44,7 @@ export default function Contests() {
       <h1>Contests</h1>
 
       {loadState === 'loading' && <ListSkeleton />}
-      {loadState === 'error' && <p className="banner banner--error">Couldn&apos;t load contests. Please try again.</p>}
+      {loadState === 'error' && <ErrorBanner message="Couldn't load contests. Please try again." />}
 
       {loadState === 'loaded' &&
         (contests.length === 0 ? (

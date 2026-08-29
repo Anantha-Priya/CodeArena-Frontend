@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { listMySubmissions } from '../api/submissions';
+import { ErrorBanner } from '../components/ErrorBanner';
 import { ListSkeleton } from '../components/ListSkeleton';
 import type { Submission } from '../types/submission';
 
@@ -33,9 +34,7 @@ export default function Submissions() {
       <h1>My Submissions</h1>
 
       {loadState === 'loading' && <ListSkeleton />}
-      {loadState === 'error' && (
-        <p className="banner banner--error">Couldn&apos;t load your submissions. Please try again.</p>
-      )}
+      {loadState === 'error' && <ErrorBanner message="Couldn't load your submissions. Please try again." />}
 
       {loadState === 'loaded' &&
         (submissions.length === 0 ? (

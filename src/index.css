@@ -433,8 +433,9 @@ button:disabled {
 
 .admin-problem-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 14px;
+  gap: 10px 14px;
   padding: 12px 16px;
 }
 
@@ -459,8 +460,9 @@ button:disabled {
 
 .admin-contest-row__header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 14px;
+  gap: 10px 14px;
 }
 
 .contest-problems-panel {

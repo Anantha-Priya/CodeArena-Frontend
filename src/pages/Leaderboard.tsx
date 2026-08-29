@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ApiError } from '../api/client';
 import { getContest, getContestLeaderboard } from '../api/contests';
+import { ErrorBanner } from '../components/ErrorBanner';
+import { ListSkeleton } from '../components/ListSkeleton';
 import { useAuth } from '../hooks/useAuth';
 import type { LeaderboardEntry } from '../types/leaderboard';
 
@@ -69,7 +71,7 @@ export default function Leaderboard() {
   }
 
   if (loadState === 'error') {
-    return <p className="banner banner--error">Couldn&apos;t load the leaderboard. Please try again.</p>;
+    return <ErrorBanner message="Couldn't load the leaderboard. Please try again." />;
   }
 
   return (
@@ -79,7 +81,7 @@ export default function Leaderboard() {
         <Link to={`/contests/${id}`}>Back to contest</Link>
       </p>
 
-      {loadState === 'loading' && <p>Loading leaderboard…</p>}
+      {loadState === 'loading' && <ListSkeleton rows={4} />}
 
       {loadState === 'loaded' &&
         (entries.length === 0 ? (

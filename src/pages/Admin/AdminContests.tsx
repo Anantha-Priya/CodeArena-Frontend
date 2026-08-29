@@ -1,7 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { ApiError } from '../../api/client';
 import { createContest, listContests } from '../../api/contests';
+import { getErrorMessage } from '../../api/errors';
 import { ContestProblemsPanel } from '../../components/ContestProblemsPanel';
+import { ErrorBanner } from '../../components/ErrorBanner';
 import { ListSkeleton } from '../../components/ListSkeleton';
 import type { Contest, ContestPayload } from '../../types/contest';
 
@@ -108,9 +110,7 @@ export default function AdminContests() {
         // check above should already catch this before a request ever goes out.
         setFieldErrors({ _general: err.message });
       } else {
-        setFieldErrors({
-          _general: err instanceof Error ? err.message : 'Something went wrong. Please try again.',
-        });
+        setFieldErrors({ _general: getErrorMessage(err) });
       }
     } finally {
       setSubmitting(false);
@@ -125,7 +125,7 @@ export default function AdminContests() {
         <>
           <h2>New Contest</h2>
           <form onSubmit={handleCreate} className="form contest-form">
-            {fieldErrors._general && <p className="banner banner--error">{fieldErrors._general}</p>}
+            {fieldErrors._general && <ErrorBanner message={fieldErrors._general} />}
 
             <label className="field">
               Title
@@ -182,7 +182,7 @@ export default function AdminContests() {
       <h2 className="admin-contests__list-heading">Existing Contests</h2>
 
       {loadState === 'loading' && <ListSkeleton />}
-      {loadState === 'error' && <p className="banner banner--error">Couldn&apos;t load contests.</p>}
+      {loadState === 'error' && <ErrorBanner message="Couldn't load contests." />}
       {loadState === 'loaded' &&
         (contests.length === 0 ? (
           <p className="empty-state">No contests yet.</p>

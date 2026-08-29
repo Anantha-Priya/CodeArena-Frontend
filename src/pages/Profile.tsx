@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getMe } from '../api/users';
+import { ErrorBanner } from '../components/ErrorBanner';
+import { ListSkeleton } from '../components/ListSkeleton';
 import type { UserProfile } from '../types/user';
 
 type LoadState = 'loading' | 'loaded' | 'error';
@@ -27,11 +29,11 @@ export default function Profile() {
   }, []);
 
   if (loadState === 'error') {
-    return <p className="banner banner--error">Couldn&apos;t load your profile. Please try again.</p>;
+    return <ErrorBanner message="Couldn't load your profile. Please try again." />;
   }
 
   if (loadState === 'loading' || !profile) {
-    return <p>Loading profile…</p>;
+    return <ListSkeleton rows={4} />;
   }
 
   return (

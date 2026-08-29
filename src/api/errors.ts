@@ -1,3 +1,13 @@
+const DEFAULT_ERROR_MESSAGE = 'Something went wrong. Please try again.';
+
+// Every catch block in this app needs to turn "whatever got thrown" into one display
+// string: the backend's own {status, message} (ApiError extends Error, so this covers it
+// too) when there is one, and a single consistent fallback otherwise — instead of each
+// page repeating this ternary itself.
+export function getErrorMessage(err: unknown, fallback: string = DEFAULT_ERROR_MESSAGE): string {
+  return err instanceof Error ? err.message : fallback;
+}
+
 // The backend joins @Valid field errors into one string, e.g.
 // "username: must not be blank; email: must be a well-formed email address"
 // (see API_REFERENCE.md). There's no structured field map, so split it back apart

@@ -2,9 +2,12 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ApiError } from '../api/client';
 import { getContest } from '../api/contests';
+import { getErrorMessage } from '../api/errors';
 import { getProblem } from '../api/problems';
 import { createSubmission } from '../api/submissions';
 import { DifficultyBadge } from '../components/DifficultyBadge';
+import { ErrorBanner } from '../components/ErrorBanner';
+import { ListSkeleton } from '../components/ListSkeleton';
 import type { Problem } from '../types/problem';
 import type { Submission, SubmissionStatus } from '../types/submission';
 
@@ -128,9 +131,7 @@ export default function ProblemDetail() {
       // Every rejection (not joined / contest not active / problem not in contest / not
       // found) is a distinct, already-clear message straight from the backend — show it
       // verbatim rather than re-wording it into a generic error.
-      setSubmissionErrors({
-        _general: err instanceof ApiError ? err.message : 'Something went wrong. Please try again.',
-      });
+      setSubmissionErrors({ _general: getErrorMessage(err) });
     } finally {
       setSubmitting(false);
     }
@@ -147,11 +148,11 @@ export default function ProblemDetail() {
   }
 
   if (state === 'error') {
-    return <p className="banner banner--error">Couldn&apos;t load this problem. Please try again.</p>;
+    return <ErrorBanner message="Couldn't load this problem. Please try again." />;
   }
 
   if (state === 'loading' || !problem) {
-    return <p>Loading problem…</p>;
+    return <ListSkeleton rows={6} />;
   }
 
   return (
@@ -210,7 +211,7 @@ export default function ProblemDetail() {
             </p>
           )}
 
-          {submissionErrors._general && <p className="banner banner--error">{submissionErrors._general}</p>}
+          {submissionErrors._general && <ErrorBanner message={submissionErrors._general} />}
 
           <form onSubmit={handleSubmitSolution} className="form submission-form">
             <label className="field">

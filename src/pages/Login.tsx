@@ -2,6 +2,8 @@ import { useState, type FormEvent } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { login as loginRequest } from '../api/auth';
 import { ApiError } from '../api/client';
+import { getErrorMessage } from '../api/errors';
+import { ErrorBanner } from '../components/ErrorBanner';
 import { PasswordField } from '../components/PasswordField';
 import { useAuth } from '../hooks/useAuth';
 
@@ -32,7 +34,7 @@ export default function Login() {
       if (err instanceof ApiError && err.status === 401) {
         setError('Invalid email or password');
       } else {
-        setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+        setError(getErrorMessage(err));
       }
     } finally {
       setSubmitting(false);
@@ -43,7 +45,7 @@ export default function Login() {
     <div className="auth-page">
       <h1>Log in</h1>
       {successMessage && <p className="banner banner--success">{successMessage}</p>}
-      {error && <p className="banner banner--error">{error}</p>}
+      {error && <ErrorBanner message={error} />}
       <form onSubmit={handleSubmit} className="form">
         <label className="field">
           Email

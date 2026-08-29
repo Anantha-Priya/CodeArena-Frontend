@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { listProblems } from '../api/problems';
 import { DifficultyBadge } from '../components/DifficultyBadge';
+import { ErrorBanner } from '../components/ErrorBanner';
 import { ListSkeleton } from '../components/ListSkeleton';
 import type { Page } from '../types/api';
 import type { Difficulty, Problem } from '../types/problem';
@@ -81,7 +82,7 @@ export default function Problems() {
 
       {state === 'loading' && <ListSkeleton rows={PAGE_SIZE} />}
 
-      {state === 'error' && <p className="banner banner--error">Couldn&apos;t load problems. Please try again.</p>}
+      {state === 'error' && <ErrorBanner message="Couldn't load problems. Please try again." />}
 
       {state === 'loaded' && data && (
         <>

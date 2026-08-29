@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { ApiError } from '../api/client';
-import { parseFieldErrors } from '../api/errors';
+import { getErrorMessage, parseFieldErrors } from '../api/errors';
 import type { Difficulty, ProblemPayload } from '../types/problem';
+import { ErrorBanner } from './ErrorBanner';
 
 const DIFFICULTIES: Difficulty[] = ['EASY', 'MEDIUM', 'HARD'];
 
@@ -91,7 +92,7 @@ export function ProblemForm({ initialValues, submitLabel, onSubmit, onCancel }: 
       } else if (err instanceof ApiError && err.status === 400) {
         setFieldErrors(parseFieldErrors(err.message));
       } else {
-        setFieldErrors({ _general: err instanceof Error ? err.message : 'Something went wrong. Please try again.' });
+        setFieldErrors({ _general: getErrorMessage(err) });
       }
     } finally {
       setSubmitting(false);
@@ -100,7 +101,7 @@ export function ProblemForm({ initialValues, submitLabel, onSubmit, onCancel }: 
 
   return (
     <form onSubmit={handleSubmit} className="form problem-form">
-      {fieldErrors._general && <p className="banner banner--error">{fieldErrors._general}</p>}
+      {fieldErrors._general && <ErrorBanner message={fieldErrors._general} />}
 
       <label className="field">
         Title

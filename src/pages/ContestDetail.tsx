@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ApiError } from '../api/client';
 import { getContest, getContestProblems, joinContest } from '../api/contests';
+import { getErrorMessage } from '../api/errors';
 import { DifficultyBadge } from '../components/DifficultyBadge';
+import { ErrorBanner } from '../components/ErrorBanner';
 import { ListSkeleton } from '../components/ListSkeleton';
 import { StatusPill } from '../components/StatusPill';
 import { formatCountdown, useContestStatus } from '../hooks/useContestStatus';
@@ -91,10 +93,7 @@ export default function ContestDetail() {
       } else if (err instanceof ApiError && err.status === 400) {
         setJoinMessage({ type: 'error', text: err.message });
       } else {
-        setJoinMessage({
-          type: 'error',
-          text: err instanceof Error ? err.message : 'Something went wrong. Please try again.',
-        });
+        setJoinMessage({ type: 'error', text: getErrorMessage(err) });
       }
     } finally {
       setJoining(false);
@@ -112,11 +111,11 @@ export default function ContestDetail() {
   }
 
   if (loadState === 'error') {
-    return <p className="banner banner--error">Couldn&apos;t load this contest. Please try again.</p>;
+    return <ErrorBanner message="Couldn't load this contest. Please try again." />;
   }
 
   if (loadState === 'loading' || !contest) {
-    return <p>Loading contest…</p>;
+    return <ListSkeleton rows={4} />;
   }
 
   return (
@@ -174,7 +173,7 @@ export default function ContestDetail() {
         {problemsLoadState === 'loading' && <ListSkeleton rows={2} />}
 
         {problemsLoadState === 'error' && (
-          <p className="banner banner--error">Couldn&apos;t load this contest&apos;s problems. Please try again.</p>
+          <ErrorBanner message="Couldn't load this contest's problems. Please try again." />
         )}
 
         {problemsLoadState === 'loaded' &&

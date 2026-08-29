@@ -2,7 +2,8 @@ import { useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { register as registerRequest } from '../api/auth';
 import { ApiError } from '../api/client';
-import { parseFieldErrors } from '../api/errors';
+import { getErrorMessage, parseFieldErrors } from '../api/errors';
+import { ErrorBanner } from '../components/ErrorBanner';
 import { PasswordField } from '../components/PasswordField';
 import { useAuth } from '../hooks/useAuth';
 
@@ -40,7 +41,7 @@ export default function Register() {
         // message string — parseFieldErrors does its best to route it to a field.
         setFieldErrors(parseFieldErrors(err.message));
       } else {
-        setFieldErrors({ _general: err instanceof Error ? err.message : 'Something went wrong. Please try again.' });
+        setFieldErrors({ _general: getErrorMessage(err) });
       }
     } finally {
       setSubmitting(false);
@@ -50,7 +51,7 @@ export default function Register() {
   return (
     <div className="auth-page">
       <h1>Register</h1>
-      {fieldErrors._general && <p className="banner banner--error">{fieldErrors._general}</p>}
+      {fieldErrors._general && <ErrorBanner message={fieldErrors._general} />}
       <form onSubmit={handleSubmit} className="form">
         <label className="field">
           Username
