@@ -444,6 +444,31 @@ button:disabled {
   margin-left: auto;
 }
 
+.contest-form {
+  max-width: 560px;
+  margin-bottom: 32px;
+}
+
+.admin-contests__list-heading {
+  margin-top: 32px;
+}
+
+.admin-contest-row {
+  padding: 14px 16px;
+}
+
+.admin-contest-row__header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.contest-problems-panel {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
 .badge--contest-upcoming {
   background: color-mix(in srgb, var(--info) 18%, transparent);
   color: var(--info);

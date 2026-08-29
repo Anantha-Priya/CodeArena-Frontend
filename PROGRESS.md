@@ -412,13 +412,57 @@ polled every 5–10s).
 
 ## Phase 9: Admin Contest Management
 
-- [ ] Done
+- [x] Done
 
 **Built:**
+- `ContestPayload` type added to [src/types/contest.ts](src/types/contest.ts); `createContest`
+  and `attachProblemToContest` added to [src/api/contests.ts](src/api/contests.ts) (`POST
+  /api/contests` and `POST /api/contests/{contestId}/problems/{problemId}`).
+- [src/pages/Admin/AdminContests.tsx](src/pages/Admin/AdminContests.tsx): a create-contest
+  form (title, description, two `datetime-local` inputs) with client-side validation
+  mirroring `ContestRequest`'s exact rules — checked the real DTO
+  (`@NotBlank`/`@NotNull`/class-level `@EndTimeAfterStartTime`) rather than assuming, so
+  `endTime <= startTime` is rejected client-side (matching the backend's `isAfter`, i.e.
+  strictly after — equal times fail too) before any request goes out. Below it, a flat list
+  of every existing contest, each with a "Manage Problems" toggle.
+- [src/components/ContestProblemsPanel.tsx](src/components/ContestProblemsPanel.tsx): the
+  problem-attach UI — reuses Phase 4's `listProblems` (as one large page, matching
+  `AdminProblems`'s pattern) and Phase 7's `getContestProblems` to show every problem with an
+  "Attach" button, already-disabled+labeled "Attached" for ones already on the contest. A
+  409 (already attached, e.g. from a stale second tab) just corrects local state silently
+  rather than showing an error, since nothing actually went wrong from the user's
+  perspective.
+- No edit/delete for contests — the backend has no `PUT`/`DELETE /api/contests/{id}`
+  (confirmed via `ContestController`), so unlike Phase 6's problems there's nothing to build
+  there.
 
 **Decisions/deviations:**
+- Kept the create form's `startTime`/`endTime` as raw `datetime-local` strings
+  (`"YYYY-MM-DDTHH:mm"`) all the way through — including the client-side after-check, which
+  just does a plain string comparison (`endTime <= startTime`), safe because the format is
+  lexicographically ordered the same as chronologically for same-length values. Deliberately
+  never touches a JS `Date` object for this payload: the backend interprets these strings as
+  its own local wall-clock time with zero zone conversion (API_REFERENCE.md's gotcha), and
+  round-tripping through `Date`/`toISOString()` would risk introducing an offset shift that
+  isn't wanted here. Only appends `:00` for seconds before sending, since `datetime-local`
+  omits them.
+- No pagination/filtering on the admin contest list (same call as `AdminProblems` in
+  Phase 6) — this is management, not browsing.
+- Verified end-to-end in-browser as `ADMIN`: submitting the create form with end time before
+  start time is blocked with "End time must be after start time" and fires zero network
+  requests; a valid submission creates the contest, closes the form, and it appears both in
+  the admin list and — confirmed separately — in the Phase 7 public Contests list with the
+  correct live status (`UPCOMING`, matching the future start time with no timezone drift);
+  opening "Manage Problems" and attaching a problem flips its button to a disabled
+  "Attached" immediately, leaves an identically-titled *different* problem (different id)
+  independently attachable, and the attached problem shows up on the contest's public detail
+  page with a working link. Forced a duplicate attach via direct API call and confirmed it
+  returns the exact `409 {"message":"Problem already added to this contest"}` shape the
+  catch block is built to handle. Also reconfirmed a fresh non-admin account is redirected
+  away from `/admin/contests` by the same `AdminRoute` guard from Phase 6.
 
-**Next:**
+**Next:** Phase 10 — Submission Form & My Submissions (manual status field, per-rejection-
+reason messaging: not joined / not active / problem not in contest).
 
 ---
 

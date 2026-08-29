@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { Contest, ContestStatusInfo } from '../types/contest';
+import type { Contest, ContestPayload, ContestStatusInfo } from '../types/contest';
 import type { Problem } from '../types/problem';
 
 // Plain array, not paginated — see API_REFERENCE.md's gotchas section.
@@ -23,4 +23,12 @@ export function getContestProblems(id: string): Promise<Problem[]> {
 
 export function joinContest(id: string): Promise<void> {
   return apiClient.post(`/api/contests/${id}/join`);
+}
+
+export function createContest(payload: ContestPayload): Promise<Contest> {
+  return apiClient.post('/api/contests', payload);
+}
+
+export function attachProblemToContest(contestId: number, problemId: number): Promise<void> {
+  return apiClient.post(`/api/contests/${contestId}/problems/${problemId}`);
 }
