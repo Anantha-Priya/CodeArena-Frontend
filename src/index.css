@@ -521,3 +521,14 @@ button:disabled {
   color: var(--text-h);
   font-weight: 500;
 }
+
+.contest-detail__problems {
+  margin-top: 32px;
+}
+
+.contest-detail__problems h2 {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0 0 12px;
+}

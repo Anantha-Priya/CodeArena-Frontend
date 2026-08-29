@@ -1,17 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ApiError } from '../api/client';
-import { getContest } from '../api/contests';
+import { getContest, getContestProblems } from '../api/contests';
+import { DifficultyBadge } from '../components/DifficultyBadge';
+import { ListSkeleton } from '../components/ListSkeleton';
 import { StatusPill } from '../components/StatusPill';
 import { formatCountdown, useContestStatus } from '../hooks/useContestStatus';
 import type { Contest } from '../types/contest';
+import type { Problem } from '../types/problem';
 
 type LoadState = 'loading' | 'loaded' | 'not-found' | 'error';
+type ProblemsLoadState = 'loading' | 'loaded' | 'error';
 
 export default function ContestDetail() {
   const { id } = useParams<{ id: string }>();
   const [contest, setContest] = useState<Contest | null>(null);
   const [loadState, setLoadState] = useState<LoadState>('loading');
+  const [problems, setProblems] = useState<Problem[]>([]);
+  const [problemsLoadState, setProblemsLoadState] = useState<ProblemsLoadState>('loading');
   const { status, remainingSeconds } = useContestStatus(id ?? '');
 
   useEffect(() => {
@@ -33,6 +39,26 @@ export default function ContestDetail() {
         } else {
           setLoadState('error');
         }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
+
+    let cancelled = false;
+
+    getContestProblems(id)
+      .then((result) => {
+        if (cancelled) return;
+        setProblems(result);
+        setProblemsLoadState('loaded');
+      })
+      .catch(() => {
+        if (!cancelled) setProblemsLoadState('error');
       });
 
     return () => {
@@ -85,9 +111,32 @@ export default function ContestDetail() {
         </div>
       </dl>
 
-      {/* The backend currently has no way to fetch a contest's associated problems
-          (no `problems` field on ContestResponse, no GET endpoint) — flagged, and per
-          the call made, this section is left out until that's added. */}
+      <section className="contest-detail__problems">
+        <h2>Problems</h2>
+
+        {problemsLoadState === 'loading' && <ListSkeleton rows={2} />}
+
+        {problemsLoadState === 'error' && (
+          <p className="banner banner--error">Couldn&apos;t load this contest&apos;s problems. Please try again.</p>
+        )}
+
+        {problemsLoadState === 'loaded' &&
+          (problems.length === 0 ? (
+            <p className="empty-state">No problems have been added to this contest yet.</p>
+          ) : (
+            <ul className="problem-list">
+              {problems.map((problem) => (
+                <li key={problem.id} className="problem-card">
+                  <Link to={`/problems/${problem.id}`} className="problem-card__link">
+                    <span className="problem-card__title">{problem.title}</span>
+                    <DifficultyBadge difficulty={problem.difficulty} />
+                    <span className="problem-card__topic">{problem.topic}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ))}
+      </section>
     </div>
   );
 }

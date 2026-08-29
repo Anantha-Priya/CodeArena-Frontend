@@ -166,6 +166,23 @@ each item a `ContestResponse`.
 (both ids are in the URL). 201 empty body. 404 if contest or problem doesn't exist. 409 if
 that problem is already attached to that contest.
 
+**GET `/api/contests/{id}/problems`** — any authenticated user. Added after the frontend's
+Phase 7 shipped without it (there was previously no way to read back a contest's attached
+problems at all). Confirmed live against the running backend:
+```json
+[
+  {
+    "id": 5, "title": "Two Sum", "description": "x", "difficulty": "EASY",
+    "topic": "Arrays", "constraints": "x", "inputFormat": "x", "outputFormat": "x",
+    "sampleInput": "x", "sampleOutput": "x", "createdAt": "2026-08-26T17:22:30.84265"
+  }
+]
+```
+Plain array of full `ProblemResponse` objects (same shape as `GET /api/problems/{id}`), not
+paginated. 200 + `[]` (not 404) if the contest exists but has no problems attached yet. 404 if
+the contest itself doesn't exist. No documented ordering guarantee — treat it as attachment
+order, don't rely on it being sorted any particular way.
+
 **GET `/api/contests/{id}/status`** — any authenticated user
 ```json
 { "status": "ACTIVE", "remainingSeconds": 3421 }

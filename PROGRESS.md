@@ -314,15 +314,24 @@ polled every 5–10s).
   problems section (see deviation below).
 
 **Decisions/deviations:**
-- **Backend contract gap, left unresolved by explicit choice:** `ContestResponse` has no
-  `problems` field and there's no `GET /api/contests/{id}/problems` endpoint — checked
+- **Backend contract gap — originally left unresolved, now closed.** `ContestResponse` had no
+  `problems` field and there was no `GET /api/contests/{id}/problems` endpoint — checked
   `ContestController`/`ContestService` directly; `ContestProblemRepository.findByContestId`
-  already exists but is only ever used internally when *attaching* a problem, never to read
+  already existed but was only ever used internally when *attaching* a problem, never to read
   them back. Flagged this to the user with two concrete fix options (a dedicated GET endpoint,
   mirroring the existing attach endpoint's URL shape; or embedding `problems` directly in
-  `ContestResponse`); they chose to build without it for now. The Contest Detail page
-  currently has no associated-problems section as a result — revisit once the backend
-  supports it (naturally relevant again in Phase 9, which needs the attach flow anyway).
+  `ContestResponse`); they chose to build without it at the time. **Update:** the backend has
+  since added `GET /api/contests/{id}/problems` (the dedicated-endpoint option). Confirmed its
+  live shape via curl against a contest with attached problems — plain array of full
+  `ProblemResponse` objects, `200 + []` (not 404) when a contest has none attached, `404` if
+  the contest itself doesn't exist — documented in `API_REFERENCE.md`. Wired it up: added
+  `getContestProblems()` to `src/api/contests.ts`, and `ContestDetail.tsx` now has a
+  "Problems" section listing each attached problem (title, difficulty badge, topic) linking to
+  its Problem Detail page, with its own loading/error/empty states independent of the
+  contest's own fetch. Verified live: a contest with 2 attached problems (via a fresh
+  `POST .../problems/{problemId}` call) renders both with working links to
+  `/problems/{id}`; a contest with none shows "No problems have been added to this contest
+  yet." distinctly from the loading skeleton and error banner.
 - List page polls status per-card independently (N pollers for N contests) rather than one
   batched call, since there's no batch status endpoint — fine at this project's contest-count
   scale, matches the guide's "poll while the page is open" instruction literally.
