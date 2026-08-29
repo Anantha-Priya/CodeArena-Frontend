@@ -180,7 +180,7 @@ export default function ContestDetail() {
             <ul className="problem-list">
               {problems.map((problem) => (
                 <li key={problem.id} className="problem-card">
-                  <Link to={`/problems/${problem.id}`} className="problem-card__link">
+                  <Link to={`/problems/${problem.id}?contestId=${contest.id}`} className="problem-card__link">
                     <span className="problem-card__title">{problem.title}</span>
                     <DifficultyBadge difficulty={problem.difficulty} />
                     <span className="problem-card__topic">{problem.topic}</span>

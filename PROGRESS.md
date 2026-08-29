@@ -468,13 +468,52 @@ reason messaging: not joined / not active / problem not in contest).
 
 ## Phase 10: Submission Form & My Submissions
 
-- [ ] Done
+- [x] Done
 
 **Built:**
+- `SubmissionStatus`, `SubmissionPayload`, `Submission` types added to
+  [src/types/submission.ts](src/types/submission.ts); `createSubmission`/`listMySubmissions`
+  added to [src/api/submissions.ts](src/api/submissions.ts) (`POST /api/submissions`, `GET
+  /api/submissions/my`). Checked the real `SubmissionRequest`/`SubmissionService` source
+  first — `language` is a free-form `@NotBlank` string (no enum), `status` is required, and
+  the rejection order/exact messages (`"You have not joined this contest"`, `"Contest is not
+  currently active"`, `"Problem does not belong to this contest"`) are all plain `400`s with
+  distinct text, no field prefix — so the UI just shows `err.message` verbatim rather than
+  re-wording backend text into custom copy.
+- [src/pages/ProblemDetail.tsx](src/pages/ProblemDetail.tsx): a "Submit Solution" section
+  that only renders when the page is reached with a `?contestId=` query param (added to
+  [ContestDetail.tsx](src/pages/ContestDetail.tsx)'s problem links). Shows which contest
+  it's for (fetches the title, falls back to `#<id>` if that fetch fails), a clear
+  disclaimer that status is picked manually (no real judge in v1), and a form for
+  language/source code/status. Client-side validation (all three required) blocks
+  submission before any network call; every backend rejection shows as its own banner.
+- [src/pages/Submissions.tsx](src/pages/Submissions.tsx): a table of the caller's own
+  submissions — problem/contest (both linked), language, status (color-coded), score,
+  submitted-at — relying entirely on the backend's own newest-first ordering
+  (`findByUserIdOrderBySubmittedAtDesc`), no client re-sort.
 
 **Decisions/deviations:**
+- Chose a query param (`/problems/:id?contestId=X`) over a new nested route
+  (`/contests/:cid/problems/:pid`) to carry contest context onto the existing Problem Detail
+  page — reuses the Phase 5 page as-is instead of duplicating it, and needed no routing
+  changes.
+- The submit form always renders once `contestId` is present, regardless of the contest's
+  live status — deliberately not gating it client-side on `ACTIVE`, since the guide
+  explicitly wants the "contest not active" rejection handled and displayed, which requires
+  the form to actually be reachable in that state (e.g. a joined contest that ended, or an
+  upcoming one, both still linked from their own detail pages).
+- Verified end-to-end in-browser with a fresh user across three real contests: submitting to
+  a joined-but-not-yet-active contest and one where the caller hadn't joined at all produced
+  the two distinct messages; navigating to an attached problem via `?contestId=` for an
+  *unattached* problem+contest pair returned "Problem does not belong to this contest";
+  after joining a genuinely `ACTIVE` contest, a real submission returned `ACCEPTED`/score
+  100 for an `EASY` problem (matching the documented 100/200/300-by-difficulty rule) and
+  appeared immediately and correctly in My Submissions with working links back to the
+  problem and contest; empty-form submission showed all three required-field errors with
+  zero network calls; and visiting a problem without `?contestId=` shows no submit section
+  at all, matching Phase 5's original "no submit action outside a contest" behavior.
 
-**Next:**
+**Next:** Phase 11 — Leaderboard Page (per-contest ranked standings, own-row highlight).
 
 ---
 
