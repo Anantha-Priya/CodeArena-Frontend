@@ -43,6 +43,20 @@ every phase, then commit.
 
 **Next:** Phase 2 — Auth pages & token handling.
 
+**Post-Phase-13 polish pass (Home redesign):** the Phase 1 Home page was a bare heading +
+health-check line ever since; redesigned it into an actual hero section without touching the
+health-check logic itself. Added a headline, a "Welcome back, {username}" line, a tagline, two
+CTA buttons (`Browse Problems` → `/problems`, `View Contests` → `/contests`), and a self-contained
+inline-HTML/CSS mock terminal (traffic-light dots, a short syntax-colored snippet, a blinking
+CSS-animated cursor) as the "appeals to developers" visual element — no image assets, no new
+libraries, just `index.css`. The existing "Backend: UP / unreachable / Checking…" text and its
+three states are unchanged, just re-homed into the new layout. Found and fixed a real overflow
+bug while checking this at mobile width: the terminal's longer code lines got clipped past the
+375px viewport edge — added `overflow-x: auto` on the terminal body (matching the app's existing
+`.table-wrapper` pattern) plus a `max-width: 480px` media query that shrinks the font slightly,
+which resolves it for typical phone widths with just a negligible (~1px) scroll left as a safety
+net beyond that.
+
 ---
 
 ## Phase 2: Auth Pages & Token Handling
@@ -222,18 +236,6 @@ nav via `GET /api/users/me`).
   badge color (confirmed `badge--medium` for a MEDIUM problem).
 
 **Next:** Phase 6 — Admin Problem Management (create/edit/delete, `ROLE_ADMIN`-gated).
-
----
-
-## Phase 5: Problem Detail Page
-
-- [ ] Done
-
-**Built:**
-
-**Decisions/deviations:**
-
-**Next:**
 
 ---
 
@@ -576,6 +578,39 @@ reason messaging: not joined / not active / problem not in contest).
   exact match on all four fields.
 
 **Next:** Phase 13 — Polish: consistent error/loading handling, responsive layout.
+
+**Post-Phase-13 polish pass (chart + back navigation):** added a submission-status donut chart
+to Profile, alongside (not replacing) the four stat cards above, using
+[recharts](https://recharts.org) — the project's first charting dependency, added specifically
+for this. Checked what data actually supports a chart before picking one: `GET
+/api/submissions/my` (Phase 10) gives each submission's `status` directly, so an
+Accepted/Wrong-Answer/Compilation-Error breakdown is real, already-available data with zero
+extra requests. A "problems solved by difficulty" chart — the more obvious choice — is **not**
+directly available: `Submission` has no `difficulty` field, only `problemId`/`problemTitle`, so
+building it would mean cross-referencing every submission's `problemId` against `GET
+/api/problems` (or N individual `GET /api/problems/{id}` calls) just to plot a chart, which felt
+like real added complexity/requests for a nice-to-have rather than "using data that exists" — so
+this used the status breakdown instead, per the explicitly-approved fallback. Colors reuse the
+app's existing tokens (`--success`/`--danger`/`--warning`) rather than inventing a new palette;
+the submissions table intentionally lumps Wrong Answer and Compilation Error under one "danger"
+red for a quick good/bad read, but the chart gives them separate colors since distinguishing
+failure types is more informative here. Empty state ("No submissions yet…") is a plain message,
+not a fake/empty chart. recharts is lazy-loaded (`React.lazy`/`Suspense`) so its ~300KB isn't in
+the app's main bundle — only fetched when Profile is actually visited; confirmed via the build
+output that the main chunk stayed ~270KB and the chart split into its own chunk.
+
+Also added [src/components/BackButton.tsx](src/components/BackButton.tsx) — a small reusable
+"← Label" control (plain arrow character, no icon library needed) used consistently on every
+drill-in page: Contest Detail, Problem Detail, Leaderboard, Admin: Problems, Admin: Contests,
+and My Submissions. Prefers real browser history (`navigate(-1)`) so it returns exactly where
+the user came from, falling back to a sensible route (`/contests`, `/problems`,
+`/contests/:id`, or `/`, depending on the page) when there's no in-app history behind the
+current entry — detected via `history.state.idx` (react-router's own `createBrowserHistory`
+sets this; `0` means this is the first entry in the session, e.g. a direct link or bookmark).
+Verified both branches for real: clicked a genuine in-app `<Link>` into a contest then back —
+landed exactly back on the list via real history (`idx` 1→0); then, from a fresh direct
+navigation (`idx` reset to `0`), confirmed Back correctly took the fallback route instead of
+trying (and failing) to go further back than this app's own history.
 
 ---
 

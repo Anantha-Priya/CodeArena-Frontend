@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ApiError } from '../api/client';
 import { getContest, getContestProblems, joinContest } from '../api/contests';
 import { getErrorMessage } from '../api/errors';
+import { BackButton } from '../components/BackButton';
 import { DifficultyBadge } from '../components/DifficultyBadge';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { ListSkeleton } from '../components/ListSkeleton';
@@ -120,6 +121,8 @@ export default function ContestDetail() {
 
   return (
     <div className="contest-detail">
+      <BackButton fallback="/contests" label="Contests" />
+
       <div className="contest-detail__header">
         <h1>{contest.title}</h1>
         {status && <StatusPill status={status} />}

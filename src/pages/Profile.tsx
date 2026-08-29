@@ -1,14 +1,24 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { listMySubmissions } from '../api/submissions';
 import { getMe } from '../api/users';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { ListSkeleton } from '../components/ListSkeleton';
+import type { Submission } from '../types/submission';
 import type { UserProfile } from '../types/user';
+
+// recharts is a meaningful chunk of code for one chart — load it only when Profile is
+// actually visited instead of bundling it into the app's main chunk.
+const SubmissionStatusChart = lazy(() =>
+  import('../components/SubmissionStatusChart').then((module) => ({ default: module.SubmissionStatusChart })),
+);
 
 type LoadState = 'loading' | 'loaded' | 'error';
 
 export default function Profile() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loadState, setLoadState] = useState<LoadState>('loading');
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [submissionsLoadState, setSubmissionsLoadState] = useState<LoadState>('loading');
 
   useEffect(() => {
     let cancelled = false;
@@ -21,6 +31,24 @@ export default function Profile() {
       })
       .catch(() => {
         if (!cancelled) setLoadState('error');
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    listMySubmissions()
+      .then((result) => {
+        if (cancelled) return;
+        setSubmissions(result);
+        setSubmissionsLoadState('loaded');
+      })
+      .catch(() => {
+        if (!cancelled) setSubmissionsLoadState('error');
       });
 
     return () => {
@@ -57,6 +85,19 @@ export default function Profile() {
           <span className="stat-card__value">{profile.contestsJoined}</span>
         </div>
       </div>
+
+      <section className="profile-chart-section">
+        <h2>Submission Breakdown</h2>
+        {submissionsLoadState === 'loading' && <ListSkeleton rows={3} />}
+        {submissionsLoadState === 'error' && (
+          <ErrorBanner message="Couldn't load your submission history. Please try again." />
+        )}
+        {submissionsLoadState === 'loaded' && (
+          <Suspense fallback={<ListSkeleton rows={3} />}>
+            <SubmissionStatusChart submissions={submissions} />
+          </Suspense>
+        )}
+      </section>
     </div>
   );
 }

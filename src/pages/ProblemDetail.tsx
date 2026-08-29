@@ -5,6 +5,7 @@ import { getContest } from '../api/contests';
 import { getErrorMessage } from '../api/errors';
 import { getProblem } from '../api/problems';
 import { createSubmission } from '../api/submissions';
+import { BackButton } from '../components/BackButton';
 import { DifficultyBadge } from '../components/DifficultyBadge';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { ListSkeleton } from '../components/ListSkeleton';
@@ -157,6 +158,8 @@ export default function ProblemDetail() {
 
   return (
     <div className="problem-detail">
+      <BackButton fallback={contestId ? `/contests/${contestId}` : '/problems'} label={contestId ? 'Contest' : 'Problems'} />
+
       <div className="problem-detail__header">
         <h1>{problem.title}</h1>
         <DifficultyBadge difficulty={problem.difficulty} />

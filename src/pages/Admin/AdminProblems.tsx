@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ApiError } from '../../api/client';
 import { getErrorMessage } from '../../api/errors';
 import { createProblem, deleteProblem, listProblems, updateProblem } from '../../api/problems';
+import { BackButton } from '../../components/BackButton';
 import { DifficultyBadge } from '../../components/DifficultyBadge';
 import { ErrorBanner } from '../../components/ErrorBanner';
 import { ListSkeleton } from '../../components/ListSkeleton';
@@ -86,6 +87,8 @@ export default function AdminProblems() {
 
   return (
     <div>
+      <BackButton fallback="/" label="Home" />
+
       <h1>Admin: Problems</h1>
 
       {actionError && <ErrorBanner message={actionError} />}

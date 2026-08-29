@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { ApiError } from '../../api/client';
 import { createContest, listContests } from '../../api/contests';
 import { getErrorMessage } from '../../api/errors';
+import { BackButton } from '../../components/BackButton';
 import { ContestProblemsPanel } from '../../components/ContestProblemsPanel';
 import { ErrorBanner } from '../../components/ErrorBanner';
 import { ListSkeleton } from '../../components/ListSkeleton';
@@ -119,6 +120,8 @@ export default function AdminContests() {
 
   return (
     <div>
+      <BackButton fallback="/" label="Home" />
+
       <h1>Admin: Contests</h1>
 
       {creating ? (

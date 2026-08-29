@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { listMySubmissions } from '../api/submissions';
+import { BackButton } from '../components/BackButton';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { ListSkeleton } from '../components/ListSkeleton';
 import type { Submission } from '../types/submission';
@@ -31,6 +32,8 @@ export default function Submissions() {
 
   return (
     <div>
+      <BackButton fallback="/" label="Home" />
+
       <h1>My Submissions</h1>
 
       {loadState === 'loading' && <ListSkeleton />}

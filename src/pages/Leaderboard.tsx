@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ApiError } from '../api/client';
 import { getContest, getContestLeaderboard } from '../api/contests';
+import { BackButton } from '../components/BackButton';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { ListSkeleton } from '../components/ListSkeleton';
 import { useAuth } from '../hooks/useAuth';
@@ -76,10 +77,9 @@ export default function Leaderboard() {
 
   return (
     <div>
+      <BackButton fallback={`/contests/${id}`} label="Contest" />
+
       <h1>Leaderboard{contestTitle ? `: ${contestTitle}` : ''}</h1>
-      <p>
-        <Link to={`/contests/${id}`}>Back to contest</Link>
-      </p>
 
       {loadState === 'loading' && <ListSkeleton rows={4} />}
 
