@@ -5,6 +5,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthProvider';
 import AdminContests from './pages/Admin/AdminContests';
 import AdminProblems from './pages/Admin/AdminProblems';
+import ContestDetail from './pages/ContestDetail';
 import Contests from './pages/Contests';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -27,6 +28,7 @@ function App() {
               <Route path="/problems" element={<Problems />} />
               <Route path="/problems/:id" element={<ProblemDetail />} />
               <Route path="/contests" element={<Contests />} />
+              <Route path="/contests/:id" element={<ContestDetail />} />
               <Route path="/submissions/my" element={<Submissions />} />
               <Route path="/profile" element={<Profile />} />
               <Route element={<AdminRoute />}>

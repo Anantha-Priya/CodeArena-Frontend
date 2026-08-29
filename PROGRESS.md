@@ -291,13 +291,56 @@ polled every 5–10s).
 
 ## Phase 7: Contests List & Detail
 
-- [ ] Done
+- [x] Done
 
 **Built:**
+- [src/types/contest.ts](src/types/contest.ts) (`Contest`, `ContestStatus`,
+  `ContestStatusInfo`) and [src/api/contests.ts](src/api/contests.ts) (`listContests`,
+  `getContest`, `getContestStatus`).
+- [src/hooks/useContestStatus.ts](src/hooks/useContestStatus.ts): polls `GET
+  /api/contests/{id}/status` every 7s (within the guide's 5-10s window). `status` is always
+  exactly what the last poll returned — never computed from the client's clock. Between
+  polls, `remainingSeconds` ticks down locally once a second purely for a smooth countdown
+  display; the next poll's server value always overwrites it. Also exports a pure
+  `formatCountdown()` helper (`"17m 26s"` style, drops leading zero units).
+- [src/components/StatusPill.tsx](src/components/StatusPill.tsx): presentational-only status
+  badge (no data fetching), reused by both pages.
+- [src/pages/Contests.tsx](src/pages/Contests.tsx): fetches the plain array from
+  `GET /api/contests` once, then each card independently polls its own status via
+  `useContestStatus` for a live badge.
+- [src/pages/ContestDetail.tsx](src/pages/ContestDetail.tsx): title, status pill, a
+  human-readable "Starts in"/"Ends in" countdown (hidden once `ENDED`), description, and
+  start/end times. 404/400 → not-found state; other failures → error banner. No associated
+  problems section (see deviation below).
 
 **Decisions/deviations:**
+- **Backend contract gap, left unresolved by explicit choice:** `ContestResponse` has no
+  `problems` field and there's no `GET /api/contests/{id}/problems` endpoint — checked
+  `ContestController`/`ContestService` directly; `ContestProblemRepository.findByContestId`
+  already exists but is only ever used internally when *attaching* a problem, never to read
+  them back. Flagged this to the user with two concrete fix options (a dedicated GET endpoint,
+  mirroring the existing attach endpoint's URL shape; or embedding `problems` directly in
+  `ContestResponse`); they chose to build without it for now. The Contest Detail page
+  currently has no associated-problems section as a result — revisit once the backend
+  supports it (naturally relevant again in Phase 9, which needs the attach flow anyway).
+- List page polls status per-card independently (N pollers for N contests) rather than one
+  batched call, since there's no batch status endpoint — fine at this project's contest-count
+  scale, matches the guide's "poll while the page is open" instruction literally.
+- `new Date(contest.startTime).toLocaleString()` displays correctly only because the backend
+  stores/compares `LocalDateTime` with no timezone info and this project's frontend and
+  backend run on the same machine in the same timezone (per API_REFERENCE.md's gotcha on
+  `startTime`/`endTime`). Not a bug to fix here — just a limitation inherent to the backend's
+  timezone-less design, worth knowing about before any real multi-timezone deployment.
+- Verified end-to-end against real contest data seeded via direct API calls (no admin contest
+  UI yet — that's Phase 9): confirmed the list's per-card badges match live backend state
+  including two contests that were already `ENDED`; watched an `ACTIVE` contest's detail-page
+  countdown genuinely tick down over several seconds and cross-checked it against a fresh
+  `GET .../status` call; caught a real `UPCOMING`→`ACTIVE` transition organically (a seeded
+  contest's start time passed mid-session and the poll picked it up automatically, with zero
+  client-side clock logic involved); confirmed an `ENDED` contest shows no countdown; and
+  confirmed a nonexistent contest id shows the not-found state without crashing.
 
-**Next:**
+**Next:** Phase 8 — Contest Join Flow (join button, 409/400 handling, refetch on success).
 
 ---
 
