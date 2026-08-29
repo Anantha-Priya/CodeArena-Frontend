@@ -670,6 +670,34 @@ button:disabled {
   color: var(--text-h);
 }
 
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  max-width: 640px;
+  margin-top: 20px;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.stat-card__label {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.stat-card__value {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
 .leaderboard-row--me {
   background: color-mix(in srgb, var(--accent) 12%, transparent);
   font-weight: 600;

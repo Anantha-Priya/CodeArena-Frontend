@@ -555,13 +555,27 @@ reason messaging: not joined / not active / problem not in contest).
 
 ## Phase 12: Profile Page
 
-- [ ] Done
+- [x] Done
 
 **Built:**
+- [src/pages/Profile.tsx](src/pages/Profile.tsx): four read-only stat cards (username,
+  rating, problems solved, contests joined) backed by `GET /api/users/me`. No editing —
+  matches the endpoint being read-only in v1.
 
 **Decisions/deviations:**
+- `getMe()` and the `UserProfile` type already existed from Phase 3 (where `AuthProvider`
+  uses them to populate the navbar) — reused as-is, nothing new needed in `src/api` or
+  `src/types`.
+- Deliberately gives Profile its own fresh fetch on mount rather than just reading
+  `useAuth().user` (which `AuthProvider` only refetches on login or a fresh page load, not
+  after in-session actions). This page's whole point is showing current stats, so it
+  shouldn't risk showing a stale rating/count if the user solved a problem or joined a
+  contest earlier in the same session without reloading.
+- Verified in-browser: cross-checked a real account's rendered values (username, rating 60,
+  1 problem solved, 3 contests joined) directly against a `GET /api/users/me` curl call —
+  exact match on all four fields.
 
-**Next:**
+**Next:** Phase 13 — Polish: consistent error/loading handling, responsive layout.
 
 ---
 
