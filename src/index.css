@@ -672,30 +672,48 @@ button:disabled {
   color: var(--text-h);
 }
 
-.stat-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 16px;
+.profile-panel {
   max-width: 640px;
   margin-top: 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg);
 }
 
-.stat-card {
+/* Fixed column counts per breakpoint (not auto-fit) so 4 stats always divide evenly —
+   auto-fit's content-driven reflow was what left "Contests Joined" orphaned alone in a
+   second row at in-between widths. Divider lines come from the grid gap itself showing
+   through to a --border background, so they stay correct at any column count with no
+   nth-child bookkeeping. */
+.profile-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+}
+
+@media (max-width: 560px) {
+  .profile-stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.profile-stat {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 16px 18px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  padding: 18px 20px;
+  background: var(--bg);
 }
 
-.stat-card__label {
+.profile-stat__label {
   font-size: 13px;
   color: var(--text);
 }
 
-.stat-card__value {
-  font-size: 28px;
+.profile-stat__value {
+  font-size: 26px;
   font-weight: 600;
   color: var(--text-h);
 }
@@ -727,21 +745,20 @@ button:disabled {
 }
 
 .profile-chart-section {
-  margin-top: 32px;
-  max-width: 480px;
+  padding: 24px 20px;
+  border-top: 1px solid var(--border);
 }
 
 .profile-chart-section h2 {
   font-size: 17px;
   font-weight: 600;
   color: var(--text-h);
-  margin: 0 0 8px;
+  margin: 0 0 12px;
 }
 
 .submission-chart {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
+  /* Lives inside .profile-panel now — no separate border of its own, so it doesn't
+     read as a second disconnected box under the stats. */
 }
 
 .submission-chart__legend {
@@ -938,4 +955,97 @@ button:disabled {
     padding: 14px 16px;
     font-size: 10.5px;
   }
+}
+
+.home-stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  max-width: 1100px;
+  margin: 56px auto 0;
+  padding: 28px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.home-stat {
+  flex: 0 1 200px;
+  text-align: center;
+}
+
+.home-stat__value {
+  display: block;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.home-stat__label {
+  display: block;
+  font-size: 14px;
+  color: var(--text);
+  margin-top: 4px;
+}
+
+.home-features {
+  max-width: 1100px;
+  margin: 56px auto 64px;
+}
+
+.home-section-title {
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0 0 28px;
+  text-align: center;
+}
+
+/* Fixed columns (3, then 1) rather than auto-fit — with exactly 3 cards, a 2-column
+   in-between step always orphans the third one alone in its own row with dead space
+   beside it, the same failure auto-fit caused on Profile's 4 stats. Skipping straight
+   to a single column below the breakpoint means every row is always full. */
+.home-feature-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 860px) {
+  .home-feature-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.home-feature-card {
+  padding: 28px 24px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--code-bg);
+}
+
+.home-feature-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+
+.home-feature-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0 0 8px;
+}
+
+.home-feature-card p {
+  font-size: 15px;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.5;
 }

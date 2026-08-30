@@ -1,9 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getHealth } from '../api/health';
+import { listContests } from '../api/contests';
+import { listProblems } from '../api/problems';
 import { useAuth } from '../hooks/useAuth';
 
 type HealthState = 'checking' | 'up' | 'unreachable';
+
+interface PlatformStats {
+  problems: number;
+  contests: number;
+}
 
 const CODE_LINES = [
   'function twoSum(nums, target) {',
@@ -16,8 +23,42 @@ const CODE_LINES = [
   '}',
 ];
 
+const FEATURES = [
+  {
+    title: 'Practice Problems',
+    description: 'Browse a growing set of problems across every difficulty, from warm-ups to real challenges.',
+    icon: (
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+        <polyline points="16 18 22 12 16 6" />
+        <polyline points="8 6 2 12 8 18" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Compete in Contests',
+    description: 'Join live, timed contests with server-driven status — no fudging the clock, ever.',
+    icon: (
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="9" />
+        <polyline points="12 7 12 12 15 15" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Track Your Progress',
+    description: 'Watch your rating, solved count, and submission history grow with every contest.',
+    icon: (
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+        <polyline points="3 17 9 11 13 15 21 6" />
+        <polyline points="14 6 21 6 21 13" />
+      </svg>
+    ),
+  },
+];
+
 export default function Home() {
   const [health, setHealth] = useState<HealthState>('checking');
+  const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -29,6 +70,24 @@ export default function Home() {
       })
       .catch(() => {
         if (!cancelled) setHealth('unreachable');
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    // Real, already-available data (not fabricated) — a page-size-1 request just to
+    // read totalElements, plus the plain contests array's own length.
+    Promise.all([listProblems({ size: 1 }), listContests()])
+      .then(([problemsPage, contests]) => {
+        if (!cancelled) setPlatformStats({ problems: problemsPage.totalElements, contests: contests.length });
+      })
+      .catch(() => {
+        // Non-fatal — the stats strip just doesn't render rather than showing a guess.
       });
 
     return () => {
@@ -80,6 +139,32 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {platformStats && (
+        <section className="home-stats">
+          <div className="home-stat">
+            <span className="home-stat__value">{platformStats.problems}</span>
+            <span className="home-stat__label">Problems Available</span>
+          </div>
+          <div className="home-stat">
+            <span className="home-stat__value">{platformStats.contests}</span>
+            <span className="home-stat__label">Contests Hosted</span>
+          </div>
+        </section>
+      )}
+
+      <section className="home-features">
+        <h2 className="home-section-title">How It Works</h2>
+        <div className="home-feature-cards">
+          {FEATURES.map((feature) => (
+            <div key={feature.title} className="home-feature-card">
+              <div className="home-feature-card__icon">{feature.icon}</div>
+              <h3>{feature.title}</h3>
+              <p>{feature.description}</p>
+            </div>
+          ))}
         </div>
       </section>
     </div>

@@ -67,37 +67,40 @@ export default function Profile() {
   return (
     <div>
       <h1>Profile</h1>
-      <div className="stat-cards">
-        <div className="stat-card">
-          <span className="stat-card__label">Username</span>
-          <span className="stat-card__value">{profile.username}</span>
-        </div>
-        <div className="stat-card">
-          <span className="stat-card__label">Rating</span>
-          <span className="stat-card__value">{profile.rating}</span>
-        </div>
-        <div className="stat-card">
-          <span className="stat-card__label">Problems Solved</span>
-          <span className="stat-card__value">{profile.problemsSolved}</span>
-        </div>
-        <div className="stat-card">
-          <span className="stat-card__label">Contests Joined</span>
-          <span className="stat-card__value">{profile.contestsJoined}</span>
-        </div>
-      </div>
 
-      <section className="profile-chart-section">
-        <h2>Submission Breakdown</h2>
-        {submissionsLoadState === 'loading' && <ListSkeleton rows={3} />}
-        {submissionsLoadState === 'error' && (
-          <ErrorBanner message="Couldn't load your submission history. Please try again." />
-        )}
-        {submissionsLoadState === 'loaded' && (
-          <Suspense fallback={<ListSkeleton rows={3} />}>
-            <SubmissionStatusChart submissions={submissions} problemsSolved={profile.problemsSolved} />
-          </Suspense>
-        )}
-      </section>
+      <div className="profile-panel">
+        <div className="profile-stats-bar">
+          <div className="profile-stat">
+            <span className="profile-stat__label">Username</span>
+            <span className="profile-stat__value">{profile.username}</span>
+          </div>
+          <div className="profile-stat">
+            <span className="profile-stat__label">Rating</span>
+            <span className="profile-stat__value">{profile.rating}</span>
+          </div>
+          <div className="profile-stat">
+            <span className="profile-stat__label">Problems Solved</span>
+            <span className="profile-stat__value">{profile.problemsSolved}</span>
+          </div>
+          <div className="profile-stat">
+            <span className="profile-stat__label">Contests Joined</span>
+            <span className="profile-stat__value">{profile.contestsJoined}</span>
+          </div>
+        </div>
+
+        <section className="profile-chart-section">
+          <h2>Submission Breakdown</h2>
+          {submissionsLoadState === 'loading' && <ListSkeleton rows={3} />}
+          {submissionsLoadState === 'error' && (
+            <ErrorBanner message="Couldn't load your submission history. Please try again." />
+          )}
+          {submissionsLoadState === 'loaded' && (
+            <Suspense fallback={<ListSkeleton rows={3} />}>
+              <SubmissionStatusChart submissions={submissions} problemsSolved={profile.problemsSolved} />
+            </Suspense>
+          )}
+        </section>
+      </div>
     </div>
   );
 }
