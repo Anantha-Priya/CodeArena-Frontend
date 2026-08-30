@@ -763,6 +763,13 @@ button:disabled {
   margin-right: 6px;
 }
 
+.submission-chart__center-label {
+  fill: var(--text-h);
+  font-size: 28px;
+  font-weight: 700;
+  font-family: var(--sans);
+}
+
 .home-hero {
   display: flex;
   flex-wrap: wrap;
@@ -778,6 +785,10 @@ button:disabled {
 
 .home-hero__copy h1 {
   font-size: 44px;
+  /* :root sets a fixed 145% line-height off an 18px base (~26px) that every element
+     inherits as a computed length — fine for body text, but far too tight for a 44px
+     headline, which made its own glyphs visually spill into the line below it. */
+  line-height: 1.15;
   margin: 0 0 8px;
   color: var(--text-h);
 }

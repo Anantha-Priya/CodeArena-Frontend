@@ -94,7 +94,7 @@ export default function Profile() {
         )}
         {submissionsLoadState === 'loaded' && (
           <Suspense fallback={<ListSkeleton rows={3} />}>
-            <SubmissionStatusChart submissions={submissions} />
+            <SubmissionStatusChart submissions={submissions} problemsSolved={profile.problemsSolved} />
           </Suspense>
         )}
       </section>

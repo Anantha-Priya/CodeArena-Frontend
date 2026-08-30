@@ -16,7 +16,12 @@ const STATUS_LABELS: Record<SubmissionStatus, string> = {
   COMPILATION_ERROR: 'Compilation Error',
 };
 
-export function SubmissionStatusChart({ submissions }: { submissions: Submission[] }) {
+interface SubmissionStatusChartProps {
+  submissions: Submission[];
+  problemsSolved: number;
+}
+
+export function SubmissionStatusChart({ submissions, problemsSolved }: SubmissionStatusChartProps) {
   const counts: Partial<Record<SubmissionStatus, number>> = {};
   for (const submission of submissions) {
     counts[submission.status] = (counts[submission.status] ?? 0) + 1;
@@ -45,6 +50,11 @@ export function SubmissionStatusChart({ submissions }: { submissions: Submission
               <Cell key={entry.status} fill={STATUS_COLORS[entry.status]} stroke="none" />
             ))}
           </Pie>
+          {/* Percentage-based coords keep this centered in the donut's hole regardless of
+              how ResponsiveContainer resizes the SVG. */}
+          <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="submission-chart__center-label">
+            {problemsSolved}
+          </text>
           <Tooltip
             contentStyle={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6 }}
             labelStyle={{ color: 'var(--text-h)' }}
