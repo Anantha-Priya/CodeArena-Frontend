@@ -935,6 +935,126 @@ button:disabled {
   font-family: var(--sans);
 }
 
+.home {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ambient decoration only — negative z-index, pointer-events:none, and no size that
+   affects layout — so it can never intercept clicks, shift content, or need cleanup. */
+.home-ambient-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.home-ambient-bg__blob {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.28;
+  filter: blur(90px);
+  will-change: transform;
+}
+
+.home-ambient-bg__blob--1 {
+  top: -140px;
+  left: -100px;
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, var(--accent), transparent 70%);
+  animation: home-blob-drift-1 30s ease-in-out infinite alternate;
+}
+
+.home-ambient-bg__blob--2 {
+  top: 20%;
+  right: -160px;
+  width: 620px;
+  height: 620px;
+  background: radial-gradient(circle, var(--info), transparent 70%);
+  animation: home-blob-drift-2 38s ease-in-out infinite alternate;
+}
+
+.home-ambient-bg__blob--3 {
+  bottom: -180px;
+  left: 25%;
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, var(--accent), transparent 70%);
+  animation: home-blob-drift-3 44s ease-in-out infinite alternate;
+}
+
+/* Faint drifting grid — background-position is GPU-cheap and explicitly allowed
+   alongside transform/opacity, unlike animating the gradient's own geometry. */
+.home-ambient-bg__grid {
+  position: absolute;
+  inset: -40px;
+  background-image: repeating-linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--text) 10%, transparent) 0,
+      color-mix(in srgb, var(--text) 10%, transparent) 1px,
+      transparent 1px,
+      transparent 40px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--text) 10%, transparent) 0,
+      color-mix(in srgb, var(--text) 10%, transparent) 1px,
+      transparent 1px,
+      transparent 40px
+    );
+  opacity: 0.4;
+  animation: home-grid-drift 70s linear infinite;
+}
+
+@keyframes home-blob-drift-1 {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(70px, 50px) scale(1.15);
+  }
+}
+
+@keyframes home-blob-drift-2 {
+  from {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+  to {
+    transform: translate(-60px, 70px) rotate(18deg) scale(1.1);
+  }
+}
+
+@keyframes home-blob-drift-3 {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(50px, -60px) scale(1.2);
+  }
+}
+
+@keyframes home-grid-drift {
+  from {
+    background-position:
+      0 0,
+      0 0;
+  }
+  to {
+    background-position:
+      40px 40px,
+      40px 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-ambient-bg__blob,
+  .home-ambient-bg__grid {
+    animation: none;
+  }
+}
+
 .home-hero {
   display: flex;
   flex-wrap: wrap;
