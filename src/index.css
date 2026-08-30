@@ -813,6 +813,30 @@ button:disabled {
   color: var(--text-h);
 }
 
+.users-table {
+  width: 100%;
+  max-width: 720px;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.users-table th,
+.users-table td {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.users-table th {
+  color: var(--text);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.users-table td {
+  color: var(--text-h);
+}
+
 .profile-page {
   max-width: 1080px;
 }
@@ -1009,6 +1033,30 @@ button:disabled {
   margin-top: 10px;
   font-size: 13px;
   color: var(--text);
+}
+
+/* Admin's platform-wide totals — deliberately its own class rather than reusing
+   .profile-dashboard, so it doesn't inherit that grid's 2-column tablet breakpoint (which
+   would orphan the third stat the same way auto-fit did before on Profile's old layout). */
+.profile-admin-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 24px;
+}
+
+@media (max-width: 640px) {
+  .profile-admin-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profile-admin-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
 }
 
 .leaderboard-row--me {

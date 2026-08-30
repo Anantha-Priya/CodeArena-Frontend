@@ -5,6 +5,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthProvider';
 import AdminContests from './pages/Admin/AdminContests';
 import AdminProblems from './pages/Admin/AdminProblems';
+import Coders from './pages/Admin/Coders';
 import ContestDetail from './pages/ContestDetail';
 import Contests from './pages/Contests';
 import Home from './pages/Home';
@@ -36,6 +37,7 @@ function App() {
               <Route element={<AdminRoute />}>
                 <Route path="/admin/problems" element={<AdminProblems />} />
                 <Route path="/admin/contests" element={<AdminContests />} />
+                <Route path="/admin/coders" element={<Coders />} />
               </Route>
             </Route>
           </Route>

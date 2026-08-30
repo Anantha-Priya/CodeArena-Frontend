@@ -16,14 +16,19 @@ export function Navbar() {
         CodeArena
       </NavLink>
       <div className="navbar__links">
-        <NavLink to="/problems">Problems</NavLink>
-        <NavLink to="/contests">Contests</NavLink>
-        <NavLink to="/submissions/my">My Submissions</NavLink>
-        <NavLink to="/profile">Profile</NavLink>
-        {user?.role === 'ADMIN' && (
+        {user?.role === 'ADMIN' ? (
           <>
-            <NavLink to="/admin/problems">Admin: Problems</NavLink>
-            <NavLink to="/admin/contests">Admin: Contests</NavLink>
+            <NavLink to="/admin/coders">Coders</NavLink>
+            <NavLink to="/profile">Profile</NavLink>
+            <NavLink to="/admin/problems">Create Problem</NavLink>
+            <NavLink to="/admin/contests">Create Contest</NavLink>
+          </>
+        ) : (
+          <>
+            <NavLink to="/problems">Problems</NavLink>
+            <NavLink to="/contests">Contests</NavLink>
+            <NavLink to="/submissions/my">My Submissions</NavLink>
+            <NavLink to="/profile">Profile</NavLink>
           </>
         )}
       </div>

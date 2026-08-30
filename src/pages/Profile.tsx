@@ -1,8 +1,9 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { listContests } from '../api/contests';
 import { listMySubmissions } from '../api/submissions';
 import { listProblems } from '../api/problems';
-import { getMe } from '../api/users';
+import { getMe, listUsers } from '../api/users';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { ListSkeleton } from '../components/ListSkeleton';
 import type { Submission } from '../types/submission';
@@ -46,6 +47,7 @@ export default function Profile() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [submissionsLoadState, setSubmissionsLoadState] = useState<LoadState>('loading');
   const [totalProblems, setTotalProblems] = useState<number | null>(null);
+  const [platformTotals, setPlatformTotals] = useState<{ contests: number; users: number } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -100,6 +102,24 @@ export default function Profile() {
     };
   }, []);
 
+  useEffect(() => {
+    // Admin-only endpoint (GET /api/users) — wait until the role is known so a regular
+    // user's page never fires a request that would just 403.
+    if (!profile || profile.role !== 'ADMIN') return;
+
+    let cancelled = false;
+
+    Promise.all([listContests(), listUsers()])
+      .then(([contests, users]) => {
+        if (!cancelled) setPlatformTotals({ contests: contests.length, users: users.length });
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [profile]);
+
   if (loadState === 'error') {
     return <ErrorBanner message="Couldn't load your profile. Please try again." />;
   }
@@ -143,56 +163,73 @@ export default function Profile() {
         </div>
       </header>
 
-      <div className="profile-dashboard">
-        <section className="profile-card profile-dashboard__chart">
-          <h2>Submission Breakdown</h2>
-          {submissionsLoadState === 'loading' && <ListSkeleton rows={3} />}
-          {submissionsLoadState === 'error' && (
-            <ErrorBanner message="Couldn't load your submission history. Please try again." />
-          )}
-          {submissionsLoadState === 'loaded' && (
-            <Suspense fallback={<ListSkeleton rows={3} />}>
-              <SubmissionStatusChart submissions={submissions} problemsSolved={profile.problemsSolved} />
-            </Suspense>
-          )}
-        </section>
+      {profile.role === 'ADMIN' ? (
+        <div className="profile-admin-stats">
+          <section className="profile-card profile-admin-stat">
+            <span className="profile-highlight__label">Total Problems</span>
+            <span className="profile-highlight__value">{totalProblems ?? '—'}</span>
+          </section>
+          <section className="profile-card profile-admin-stat">
+            <span className="profile-highlight__label">Total Contests</span>
+            <span className="profile-highlight__value">{platformTotals?.contests ?? '—'}</span>
+          </section>
+          <section className="profile-card profile-admin-stat">
+            <span className="profile-highlight__label">Total Users</span>
+            <span className="profile-highlight__value">{platformTotals?.users ?? '—'}</span>
+          </section>
+        </div>
+      ) : (
+        <div className="profile-dashboard">
+          <section className="profile-card profile-dashboard__chart">
+            <h2>Submission Breakdown</h2>
+            {submissionsLoadState === 'loading' && <ListSkeleton rows={3} />}
+            {submissionsLoadState === 'error' && (
+              <ErrorBanner message="Couldn't load your submission history. Please try again." />
+            )}
+            {submissionsLoadState === 'loaded' && (
+              <Suspense fallback={<ListSkeleton rows={3} />}>
+                <SubmissionStatusChart submissions={submissions} problemsSolved={profile.problemsSolved} />
+              </Suspense>
+            )}
+          </section>
 
-        <section className="profile-card profile-dashboard__metrics">
-          <h2>Stats</h2>
-          <ul className="profile-metric-list">
-            <li className="profile-metric">
-              <span className="profile-metric__icon">{RATING_ICON}</span>
-              <span className="profile-metric__label">Rating</span>
-              <span className="profile-metric__value">{profile.rating}</span>
-            </li>
-            <li className="profile-metric">
-              <span className="profile-metric__icon">{PROBLEMS_SOLVED_ICON}</span>
-              <span className="profile-metric__label">Problems Solved</span>
-              <span className="profile-metric__value">{profile.problemsSolved}</span>
-            </li>
-            <li className="profile-metric">
-              <span className="profile-metric__icon">{CONTESTS_JOINED_ICON}</span>
-              <span className="profile-metric__label">Contests Joined</span>
-              <span className="profile-metric__value">{profile.contestsJoined}</span>
-            </li>
-          </ul>
-        </section>
+          <section className="profile-card profile-dashboard__metrics">
+            <h2>Stats</h2>
+            <ul className="profile-metric-list">
+              <li className="profile-metric">
+                <span className="profile-metric__icon">{RATING_ICON}</span>
+                <span className="profile-metric__label">Rating</span>
+                <span className="profile-metric__value">{profile.rating}</span>
+              </li>
+              <li className="profile-metric">
+                <span className="profile-metric__icon">{PROBLEMS_SOLVED_ICON}</span>
+                <span className="profile-metric__label">Problems Solved</span>
+                <span className="profile-metric__value">{profile.problemsSolved}</span>
+              </li>
+              <li className="profile-metric">
+                <span className="profile-metric__icon">{CONTESTS_JOINED_ICON}</span>
+                <span className="profile-metric__label">Contests Joined</span>
+                <span className="profile-metric__value">{profile.contestsJoined}</span>
+              </li>
+            </ul>
+          </section>
 
-        <section className="profile-card profile-dashboard__highlight">
-          <span className="profile-highlight__label">Problems Solved</span>
-          <span className="profile-highlight__value">{profile.problemsSolved}</span>
-          {coveragePct !== null && (
-            <>
-              <div className="profile-highlight__bar">
-                <div className="profile-highlight__bar-fill" style={{ width: `${coveragePct}%` }} />
-              </div>
-              <span className="profile-highlight__caption">
-                {profile.problemsSolved} of {totalProblems} problems on CodeArena
-              </span>
-            </>
-          )}
-        </section>
-      </div>
+          <section className="profile-card profile-dashboard__highlight">
+            <span className="profile-highlight__label">Problems Solved</span>
+            <span className="profile-highlight__value">{profile.problemsSolved}</span>
+            {coveragePct !== null && (
+              <>
+                <div className="profile-highlight__bar">
+                  <div className="profile-highlight__bar-fill" style={{ width: `${coveragePct}%` }} />
+                </div>
+                <span className="profile-highlight__caption">
+                  {profile.problemsSolved} of {totalProblems} problems on CodeArena
+                </span>
+              </>
+            )}
+          </section>
+        </div>
+      )}
     </div>
   );
 }
