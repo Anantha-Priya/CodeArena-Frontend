@@ -938,6 +938,22 @@ button:disabled {
 .home {
   position: relative;
   overflow: hidden;
+  /* Home's own outer inset, layered on top of .app-content's flat 32px — a landing/hero
+     page reads better with more breathing room than the app's dense list/table pages,
+     so this stays local to Home rather than changing the shared page wrapper. */
+  padding: 40px 48px 56px;
+}
+
+@media (max-width: 768px) {
+  .home {
+    padding: 28px 28px 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home {
+    padding: 20px 18px 32px;
+  }
 }
 
 /* Ambient decoration only — negative z-index, pointer-events:none, and no size that
@@ -1060,7 +1076,6 @@ button:disabled {
   flex-wrap: wrap;
   align-items: center;
   gap: 40px;
-  padding: 16px 0 8px;
 }
 
 .home-hero__copy {
