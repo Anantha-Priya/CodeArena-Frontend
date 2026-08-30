@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { login as loginRequest } from '../api/auth';
 import { ApiError } from '../api/client';
 import { getErrorMessage } from '../api/errors';
+import { AmbientBackground } from '../components/AmbientBackground';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { PasswordField } from '../components/PasswordField';
 import { useAuth } from '../hooks/useAuth';
@@ -43,34 +44,37 @@ export default function Login() {
 
   return (
     <div className="auth-page">
-      <h1>Log in</h1>
-      {successMessage && <p className="banner banner--success">{successMessage}</p>}
-      {error && <ErrorBanner message={error} />}
-      <form onSubmit={handleSubmit} className="form">
-        <label className="field">
-          Email
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
+      <AmbientBackground />
+      <div className="auth-card">
+        <h1>Log in</h1>
+        {successMessage && <p className="banner banner--success">{successMessage}</p>}
+        {error && <ErrorBanner message={error} />}
+        <form onSubmit={handleSubmit} className="form">
+          <label className="field">
+            Email
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+              autoComplete="email"
+            />
+          </label>
+          <PasswordField
+            label="Password"
+            value={password}
+            onChange={setPassword}
             required
-            autoComplete="email"
+            autoComplete="current-password"
           />
-        </label>
-        <PasswordField
-          label="Password"
-          value={password}
-          onChange={setPassword}
-          required
-          autoComplete="current-password"
-        />
-        <button type="submit" disabled={submitting}>
-          {submitting ? 'Logging in…' : 'Log in'}
-        </button>
-      </form>
-      <p>
-        Don&apos;t have an account? <Link to="/register">Register</Link>
-      </p>
+          <button type="submit" disabled={submitting}>
+            {submitting ? 'Logging in…' : 'Log in'}
+          </button>
+        </form>
+        <p>
+          Don&apos;t have an account? <Link to="/register">Register</Link>
+        </p>
+      </div>
     </div>
   );
 }

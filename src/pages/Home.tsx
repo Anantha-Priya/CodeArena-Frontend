@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { getHealth } from '../api/health';
 import { listContests } from '../api/contests';
 import { listProblems } from '../api/problems';
+import { AmbientBackground } from '../components/AmbientBackground';
 import { useAuth } from '../hooks/useAuth';
 
 type HealthState = 'checking' | 'up' | 'unreachable';
@@ -97,12 +98,7 @@ export default function Home() {
 
   return (
     <div className="home">
-      <div className="home-ambient-bg" aria-hidden="true">
-        <div className="home-ambient-bg__blob home-ambient-bg__blob--1" />
-        <div className="home-ambient-bg__blob home-ambient-bg__blob--2" />
-        <div className="home-ambient-bg__blob home-ambient-bg__blob--3" />
-        <div className="home-ambient-bg__grid" />
-      </div>
+      <AmbientBackground />
 
       <section className="home-hero">
         <div className="home-hero__copy">

@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { register as registerRequest } from '../api/auth';
 import { ApiError } from '../api/client';
 import { getErrorMessage, parseFieldErrors } from '../api/errors';
+import { AmbientBackground } from '../components/AmbientBackground';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { PasswordField } from '../components/PasswordField';
 import { useAuth } from '../hooks/useAuth';
@@ -50,46 +51,49 @@ export default function Register() {
 
   return (
     <div className="auth-page">
-      <h1>Register</h1>
-      {fieldErrors._general && <ErrorBanner message={fieldErrors._general} />}
-      <form onSubmit={handleSubmit} className="form">
-        <label className="field">
-          Username
-          <input
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
+      <AmbientBackground />
+      <div className="auth-card">
+        <h1>Register</h1>
+        {fieldErrors._general && <ErrorBanner message={fieldErrors._general} />}
+        <form onSubmit={handleSubmit} className="form">
+          <label className="field">
+            Username
+            <input
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              required
+              autoComplete="username"
+            />
+            {fieldErrors.username && <span className="field-error">{fieldErrors.username}</span>}
+          </label>
+          <label className="field">
+            Email
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+              autoComplete="email"
+            />
+            {fieldErrors.email && <span className="field-error">{fieldErrors.email}</span>}
+          </label>
+          <PasswordField
+            label="Password"
+            value={password}
+            onChange={setPassword}
             required
-            autoComplete="username"
+            minLength={6}
+            autoComplete="new-password"
+            error={fieldErrors.password}
           />
-          {fieldErrors.username && <span className="field-error">{fieldErrors.username}</span>}
-        </label>
-        <label className="field">
-          Email
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            required
-            autoComplete="email"
-          />
-          {fieldErrors.email && <span className="field-error">{fieldErrors.email}</span>}
-        </label>
-        <PasswordField
-          label="Password"
-          value={password}
-          onChange={setPassword}
-          required
-          minLength={6}
-          autoComplete="new-password"
-          error={fieldErrors.password}
-        />
-        <button type="submit" disabled={submitting}>
-          {submitting ? 'Creating account…' : 'Register'}
-        </button>
-      </form>
-      <p>
-        Already have an account? <Link to="/login">Log in</Link>
-      </p>
+          <button type="submit" disabled={submitting}>
+            {submitting ? 'Creating account…' : 'Register'}
+          </button>
+        </form>
+        <p>
+          Already have an account? <Link to="/login">Log in</Link>
+        </p>
+      </div>
     </div>
   );
 }
