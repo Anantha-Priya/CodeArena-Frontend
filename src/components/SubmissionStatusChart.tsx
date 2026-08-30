@@ -43,24 +43,26 @@ export function SubmissionStatusChart({ submissions, problemsSolved }: Submissio
 
   return (
     <div className="submission-chart">
-      <ResponsiveContainer width="100%" height={200}>
-        <PieChart>
-          <Pie data={data} dataKey="count" nameKey="label" innerRadius={52} outerRadius={80} paddingAngle={2}>
-            {data.map((entry) => (
-              <Cell key={entry.status} fill={STATUS_COLORS[entry.status]} stroke="none" />
-            ))}
-          </Pie>
-          {/* Percentage-based coords keep this centered in the donut's hole regardless of
-              how ResponsiveContainer resizes the SVG. */}
-          <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="submission-chart__center-label">
-            {problemsSolved}
-          </text>
-          <Tooltip
-            contentStyle={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6 }}
-            labelStyle={{ color: 'var(--text-h)' }}
-          />
-        </PieChart>
-      </ResponsiveContainer>
+      <div className="submission-chart__ring">
+        <ResponsiveContainer width="100%" height={200}>
+          <PieChart>
+            <Pie data={data} dataKey="count" nameKey="label" innerRadius={52} outerRadius={80} paddingAngle={2}>
+              {data.map((entry) => (
+                <Cell key={entry.status} fill={STATUS_COLORS[entry.status]} stroke="none" />
+              ))}
+            </Pie>
+            {/* Percentage-based coords keep this centered in the donut's hole regardless of
+                how ResponsiveContainer resizes the SVG. */}
+            <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="submission-chart__center-label">
+              {problemsSolved}
+            </text>
+            <Tooltip
+              contentStyle={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6 }}
+              labelStyle={{ color: 'var(--text-h)' }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
       <ul className="submission-chart__legend">
         {data.map((entry) => (
           <li key={entry.status}>

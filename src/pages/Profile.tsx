@@ -1,5 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { listMySubmissions } from '../api/submissions';
+import { listProblems } from '../api/problems';
 import { getMe } from '../api/users';
 import { ErrorBanner } from '../components/ErrorBanner';
 import { ListSkeleton } from '../components/ListSkeleton';
@@ -14,11 +16,36 @@ const SubmissionStatusChart = lazy(() =>
 
 type LoadState = 'loading' | 'loaded' | 'error';
 
+const RATING_ICON = (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+  </svg>
+);
+
+const PROBLEMS_SOLVED_ICON = (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+    <polyline points="22 4 12 14.01 9 11.01" />
+  </svg>
+);
+
+const CONTESTS_JOINED_ICON = (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="8" r="7" />
+    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+  </svg>
+);
+
+function getInitials(username: string): string {
+  return username.slice(0, 2).toUpperCase();
+}
+
 export default function Profile() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loadState, setLoadState] = useState<LoadState>('loading');
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [submissionsLoadState, setSubmissionsLoadState] = useState<LoadState>('loading');
+  const [totalProblems, setTotalProblems] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -56,6 +83,23 @@ export default function Profile() {
     };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    // Platform-wide total, reused (not re-fetched with new logic) from the same
+    // page-size-1 trick Home uses — feeds the "problems solved out of X available"
+    // highlight below. Non-fatal: the highlight just shows the raw count if this fails.
+    listProblems({ size: 1 })
+      .then((page) => {
+        if (!cancelled) setTotalProblems(page.totalElements);
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   if (loadState === 'error') {
     return <ErrorBanner message="Couldn't load your profile. Please try again." />;
   }
@@ -64,31 +108,43 @@ export default function Profile() {
     return <ListSkeleton rows={4} />;
   }
 
-  return (
-    <div>
-      <h1>Profile</h1>
+  const coveragePct =
+    totalProblems && totalProblems > 0 ? Math.min(100, (profile.problemsSolved / totalProblems) * 100) : null;
 
-      <div className="profile-panel">
-        <div className="profile-stats-bar">
-          <div className="profile-stat">
-            <span className="profile-stat__label">Username</span>
-            <span className="profile-stat__value">{profile.username}</span>
+  return (
+    <div className="profile-page">
+      <nav className="breadcrumb" aria-label="Breadcrumb">
+        <Link to="/">Home</Link>
+        <span className="breadcrumb__sep" aria-hidden="true">
+          /
+        </span>
+        <span className="breadcrumb__current">Profile</span>
+      </nav>
+
+      <header className="profile-header">
+        <div className="profile-header__identity">
+          <div className="profile-avatar" aria-hidden="true">
+            {getInitials(profile.username)}
           </div>
-          <div className="profile-stat">
-            <span className="profile-stat__label">Rating</span>
-            <span className="profile-stat__value">{profile.rating}</span>
-          </div>
-          <div className="profile-stat">
-            <span className="profile-stat__label">Problems Solved</span>
-            <span className="profile-stat__value">{profile.problemsSolved}</span>
-          </div>
-          <div className="profile-stat">
-            <span className="profile-stat__label">Contests Joined</span>
-            <span className="profile-stat__value">{profile.contestsJoined}</span>
+          <div>
+            <h1 className="profile-header__name">{profile.username}</h1>
+            <span className={`badge profile-header__role-badge badge--role-${profile.role.toLowerCase()}`}>
+              {profile.role === 'ADMIN' ? 'Admin' : 'Member'}
+            </span>
           </div>
         </div>
+        <div className="profile-header__actions">
+          <Link to="/problems" className="button-link button-link--secondary">
+            Browse Problems
+          </Link>
+          <Link to="/submissions/my" className="button-link button-link--secondary">
+            My Submissions
+          </Link>
+        </div>
+      </header>
 
-        <section className="profile-chart-section">
+      <div className="profile-dashboard">
+        <section className="profile-card profile-dashboard__chart">
           <h2>Submission Breakdown</h2>
           {submissionsLoadState === 'loading' && <ListSkeleton rows={3} />}
           {submissionsLoadState === 'error' && (
@@ -98,6 +154,42 @@ export default function Profile() {
             <Suspense fallback={<ListSkeleton rows={3} />}>
               <SubmissionStatusChart submissions={submissions} problemsSolved={profile.problemsSolved} />
             </Suspense>
+          )}
+        </section>
+
+        <section className="profile-card profile-dashboard__metrics">
+          <h2>Stats</h2>
+          <ul className="profile-metric-list">
+            <li className="profile-metric">
+              <span className="profile-metric__icon">{RATING_ICON}</span>
+              <span className="profile-metric__label">Rating</span>
+              <span className="profile-metric__value">{profile.rating}</span>
+            </li>
+            <li className="profile-metric">
+              <span className="profile-metric__icon">{PROBLEMS_SOLVED_ICON}</span>
+              <span className="profile-metric__label">Problems Solved</span>
+              <span className="profile-metric__value">{profile.problemsSolved}</span>
+            </li>
+            <li className="profile-metric">
+              <span className="profile-metric__icon">{CONTESTS_JOINED_ICON}</span>
+              <span className="profile-metric__label">Contests Joined</span>
+              <span className="profile-metric__value">{profile.contestsJoined}</span>
+            </li>
+          </ul>
+        </section>
+
+        <section className="profile-card profile-dashboard__highlight">
+          <span className="profile-highlight__label">Problems Solved</span>
+          <span className="profile-highlight__value">{profile.problemsSolved}</span>
+          {coveragePct !== null && (
+            <>
+              <div className="profile-highlight__bar">
+                <div className="profile-highlight__bar-fill" style={{ width: `${coveragePct}%` }} />
+              </div>
+              <span className="profile-highlight__caption">
+                {profile.problemsSolved} of {totalProblems} problems on CodeArena
+              </span>
+            </>
           )}
         </section>
       </div>

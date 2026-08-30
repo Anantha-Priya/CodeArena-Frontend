@@ -672,50 +672,202 @@ button:disabled {
   color: var(--text-h);
 }
 
-.profile-panel {
-  max-width: 640px;
-  margin-top: 20px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-  background: var(--bg);
+.profile-page {
+  max-width: 1080px;
 }
 
-/* Fixed column counts per breakpoint (not auto-fit) so 4 stats always divide evenly —
-   auto-fit's content-driven reflow was what left "Contests Joined" orphaned alone in a
-   second row at in-between widths. Divider lines come from the grid gap itself showing
-   through to a --border background, so they stay correct at any column count with no
-   nth-child bookkeeping. */
-.profile-stats-bar {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--border);
-}
-
-@media (max-width: 560px) {
-  .profile-stats-bar {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.profile-stat {
+.breadcrumb {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 18px 20px;
-  background: var(--bg);
-}
-
-.profile-stat__label {
-  font-size: 13px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
   color: var(--text);
 }
 
-.profile-stat__value {
-  font-size: 26px;
+.breadcrumb a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  color: var(--accent);
+}
+
+.breadcrumb__sep {
+  color: var(--border);
+}
+
+.breadcrumb__current {
+  color: var(--text-h);
+  font-weight: 500;
+}
+
+.profile-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.profile-header__identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 40%, var(--bg)));
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.profile-header__name {
+  margin: 0 0 6px;
+}
+
+.profile-header__role-badge {
+  color: var(--text);
+  background: color-mix(in srgb, var(--text) 12%, transparent);
+}
+
+.badge--role-admin {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.profile-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.profile-dashboard {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 20px;
+  margin-top: 24px;
+}
+
+@media (max-width: 960px) {
+  .profile-dashboard {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .profile-dashboard__chart {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-dashboard__chart {
+    grid-column: auto;
+  }
+}
+
+.profile-card {
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--code-bg);
+}
+
+.profile-card h2 {
+  font-size: 15px;
   font-weight: 600;
   color: var(--text-h);
+  margin: 0 0 16px;
+}
+
+.profile-metric-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-metric {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-metric__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.profile-metric__label {
+  flex: 1;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.profile-metric__value {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.profile-dashboard__highlight {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-highlight__label {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.profile-highlight__value {
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-top: 6px;
+}
+
+.profile-highlight__bar {
+  margin-top: 16px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.profile-highlight__bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.profile-highlight__caption {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--text);
 }
 
 .leaderboard-row--me {
@@ -744,30 +896,26 @@ button:disabled {
   line-height: 1;
 }
 
-.profile-chart-section {
-  padding: 24px 20px;
-  border-top: 1px solid var(--border);
-}
-
-.profile-chart-section h2 {
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--text-h);
-  margin: 0 0 12px;
-}
-
 .submission-chart {
-  /* Lives inside .profile-panel now — no separate border of its own, so it doesn't
-     read as a second disconnected box under the stats. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.submission-chart__ring {
+  flex: 0 0 180px;
+  width: 180px;
 }
 
 .submission-chart__legend {
   list-style: none;
-  margin: 4px 0 0;
+  margin: 0;
   padding: 0;
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px 20px;
+  flex-direction: column;
+  gap: 12px;
   font-size: 14px;
   color: var(--text-h);
 }
