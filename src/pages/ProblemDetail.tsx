@@ -106,7 +106,7 @@ export default function ProblemDetail() {
 
   async function handleSubmitSolution(event: FormEvent) {
     event.preventDefault();
-    if (!contestId || !problem) return;
+    if (!problem) return;
 
     const validationErrors = validateSubmission(submissionForm);
     if (Object.keys(validationErrors).length > 0) {
@@ -120,7 +120,7 @@ export default function ProblemDetail() {
 
     try {
       const result = await createSubmission({
-        contestId: Number(contestId),
+        ...(contestId ? { contestId: Number(contestId) } : {}),
         problemId: problem.id,
         language: submissionForm.language,
         sourceCode: submissionForm.sourceCode,
@@ -196,70 +196,72 @@ export default function ProblemDetail() {
         <pre className="problem-detail__code">{problem.sampleOutput}</pre>
       </section>
 
-      {contestId && (
-        <section className="submission-section">
-          <h2>Submit Solution</h2>
+      <section className="submission-section">
+        <h2>Submit Solution</h2>
+        {contestId ? (
           <p className="submission-section__context">
             For contest: {contestTitle ?? `#${contestId}`} <Link to={`/contests/${contestId}`}>View contest</Link>
           </p>
-          <p className="submission-section__disclaimer">
-            This project has no real code execution engine — pick the outcome yourself below;
-            it isn&apos;t judged automatically.
+        ) : (
+          <p className="submission-section__context">Practice submission — not tied to any contest.</p>
+        )}
+        <p className="submission-section__disclaimer">
+          This project has no real code execution engine — pick the outcome yourself below;
+          it isn&apos;t judged automatically.
+        </p>
+
+        {submitResult && (
+          <p className="banner banner--success">
+            Submitted — status {submitResult.status}, score {submitResult.score}.{' '}
+            <Link to="/submissions/my">View My Submissions</Link>
           </p>
+        )}
 
-          {submitResult && (
-            <p className="banner banner--success">
-              Submitted — status {submitResult.status}, score {submitResult.score}.{' '}
-              <Link to="/submissions/my">View My Submissions</Link>
-            </p>
-          )}
+        {submissionErrors._general && <ErrorBanner message={submissionErrors._general} />}
 
-          {submissionErrors._general && <ErrorBanner message={submissionErrors._general} />}
+        <form onSubmit={handleSubmitSolution} className="form submission-form">
+          <label className="field">
+            Language
+            <input
+              value={submissionForm.language}
+              onChange={(event) => updateSubmissionForm('language', event.target.value)}
+              placeholder="e.g. java"
+            />
+            {submissionErrors.language && <span className="field-error">{submissionErrors.language}</span>}
+          </label>
 
-          <form onSubmit={handleSubmitSolution} className="form submission-form">
-            <label className="field">
-              Language
-              <input
-                value={submissionForm.language}
-                onChange={(event) => updateSubmissionForm('language', event.target.value)}
-                placeholder="e.g. java"
-              />
-              {submissionErrors.language && <span className="field-error">{submissionErrors.language}</span>}
-            </label>
+          <label className="field">
+            Source Code
+            <textarea
+              value={submissionForm.sourceCode}
+              onChange={(event) => updateSubmissionForm('sourceCode', event.target.value)}
+              rows={8}
+              className="mono-textarea"
+            />
+            {submissionErrors.sourceCode && <span className="field-error">{submissionErrors.sourceCode}</span>}
+          </label>
 
-            <label className="field">
-              Source Code
-              <textarea
-                value={submissionForm.sourceCode}
-                onChange={(event) => updateSubmissionForm('sourceCode', event.target.value)}
-                rows={8}
-                className="mono-textarea"
-              />
-              {submissionErrors.sourceCode && <span className="field-error">{submissionErrors.sourceCode}</span>}
-            </label>
+          <label className="field">
+            Status
+            <select
+              value={submissionForm.status}
+              onChange={(event) => updateSubmissionForm('status', event.target.value as SubmissionStatus | '')}
+            >
+              <option value="">Select status</option>
+              {SUBMISSION_STATUSES.map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+            {submissionErrors.status && <span className="field-error">{submissionErrors.status}</span>}
+          </label>
 
-            <label className="field">
-              Status
-              <select
-                value={submissionForm.status}
-                onChange={(event) => updateSubmissionForm('status', event.target.value as SubmissionStatus | '')}
-              >
-                <option value="">Select status</option>
-                {SUBMISSION_STATUSES.map((value) => (
-                  <option key={value} value={value}>
-                    {value}
-                  </option>
-                ))}
-              </select>
-              {submissionErrors.status && <span className="field-error">{submissionErrors.status}</span>}
-            </label>
-
-            <button type="submit" disabled={submitting}>
-              {submitting ? 'Submitting…' : 'Submit Solution'}
-            </button>
-          </form>
-        </section>
-      )}
+          <button type="submit" disabled={submitting}>
+            {submitting ? 'Submitting…' : 'Submit Solution'}
+          </button>
+        </form>
+      </section>
     </div>
   );
 }

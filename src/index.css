@@ -644,6 +644,11 @@ button:disabled {
   color: var(--danger);
 }
 
+.submission-practice-label {
+  color: var(--text);
+  font-style: italic;
+}
+
 .contest-detail__leaderboard-link {
   margin-top: 12px;
 }

@@ -62,7 +62,11 @@ export default function Submissions() {
                       <Link to={`/problems/${submission.problemId}`}>{submission.problemTitle}</Link>
                     </td>
                     <td>
-                      <Link to={`/contests/${submission.contestId}`}>{submission.contestTitle}</Link>
+                      {submission.contestId ? (
+                        <Link to={`/contests/${submission.contestId}`}>{submission.contestTitle}</Link>
+                      ) : (
+                        <span className="submission-practice-label">Practice</span>
+                      )}
                     </td>
                     <td>{submission.language}</td>
                     <td>
