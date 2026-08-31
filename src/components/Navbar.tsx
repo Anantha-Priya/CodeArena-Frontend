@@ -35,7 +35,7 @@ export function Navbar() {
       <div className="navbar__user">
         {user && (
           <span className="navbar__identity">
-            {user.username} · {user.rating}
+            {user.role === 'ADMIN' ? user.username : `${user.username} · ${user.rating}`}
           </span>
         )}
         <button type="button" onClick={handleLogout}>
