@@ -670,10 +670,45 @@ history review).
 
 ## Phase 14: Deployment & Resume Polish
 
-- [ ] Done
+- [ ] Done — production build, README, and commit history are done; public hosting is not yet
+  set up (see below).
 
 **Built:**
+- Verified the production build honors `VITE_API_BASE_URL` at build time: ran
+  `VITE_API_BASE_URL=https://example-backend.test npm run build` and confirmed that URL is baked
+  literally into the emitted `dist/assets/*.js` (Vite replaces `import.meta.env.VITE_*` at build
+  time, not runtime — so the env var has to be set *before* `npm run build` runs for whatever
+  target the build is for).
+- Rewrote `README.md` from the leftover Vite template default to a real project README: what it
+  is, tech stack, how the API client layer works, project/route structure, and setup
+  instructions.
+- Reviewed the full commit history (`git log --oneline`): one commit per phase through Phase 13,
+  then a run of clearly-scoped polish commits after (Home/Profile redesign, admin nav/Coders
+  leaderboard, card-shine treatment, etc.) — no "final"/"final2"/squashed-mess commits to clean
+  up. No history rewrite needed.
+- Resume bullets (lifted from the actual scope built, not aspirational):
+  - *"Built a React + TypeScript frontend for a coding-contest platform, consuming a
+    JWT-secured REST API — role-based routing and a distinct admin experience, live
+    server-driven contest state, and business-rule-aware forms for a multi-entity
+    submission/leaderboard flow."*
+  - *"Implemented data visualizations (donut charts for submission/user-activity breakdowns)
+    and a ranked leaderboard with tie-break logic, built against a real backend contract
+    rather than mocked data."*
 
 **Decisions/deviations:**
+- Did not deploy to public hosting this phase. Two blockers found while working through the
+  checklist, both requiring a decision from the project owner rather than something resolvable
+  from inside this repo: (1) this repo has no `git remote` configured yet — nothing has been
+  pushed anywhere, which most static hosts (Vercel/Netlify) deploy from directly; (2) the backend
+  (`D:\Projects\CodeArena`) only runs locally (`localhost:8080`, local MySQL) — it has no
+  production deployment of its own, so a deployed frontend would have nothing real to talk to
+  yet (`VITE_API_BASE_URL` would have no valid production value). Deploying is also the kind of
+  action (creating/using hosting + Git host accounts, publishing something publicly reachable)
+  that genuinely needs the project owner's own accounts and go-ahead, not something to do
+  unilaterally.
+- No screenshot/live link added to the README yet for the same reason — there's nothing live to
+  link or screenshot until hosting is decided.
 
-**Next:**
+**Next:** Decide a path for actual public deployment (push this repo + the backend somewhere,
+pick hosts for each, wire the frontend's `VITE_API_BASE_URL` to the deployed backend) — the
+14-phase build itself is otherwise complete.
