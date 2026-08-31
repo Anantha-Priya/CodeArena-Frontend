@@ -4,7 +4,7 @@ import { useState } from 'react';
 // different visual language for a different context, not a variant of the same component.
 
 const CHARS = '01{}[]()<>/\\;:=+-*&|!?$#@%^~'.split('');
-const COLUMN_COUNT = 22;
+const COLUMN_COUNT = 48;
 const CHARS_PER_COLUMN = 60;
 
 function randomChar(): string {
@@ -21,7 +21,7 @@ interface ColumnSpec {
 
 function generateColumns(): ColumnSpec[] {
   return Array.from({ length: COLUMN_COUNT }, (_, i) => {
-    const duration = 6 + Math.random() * 8;
+    const duration = 5 + Math.random() * 6;
     return {
       left: `${(i / COLUMN_COUNT) * 100}%`,
       text: Array.from({ length: CHARS_PER_COLUMN }, randomChar).join('\n'),
@@ -29,7 +29,7 @@ function generateColumns(): ColumnSpec[] {
       // Negative delay starts each column already mid-fall instead of every column
       // beginning "fully above" in lockstep on mount.
       delay: `-${(Math.random() * duration).toFixed(2)}s`,
-      opacity: 0.25 + Math.random() * 0.25,
+      opacity: 0.45 + Math.random() * 0.2,
     };
   });
 }
