@@ -217,6 +217,50 @@ body {
   }
 }
 
+/* Shared glossy "light shine" card treatment — a soft diagonal highlight plus a
+   transform-only hover shimmer sweep. Pair the .card-shine class alongside a card's own
+   class(es); it only contributes position/overflow and two decorative pseudo-elements. */
+.card-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-shine::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, color-mix(in srgb, #fff 8%, transparent) 0%, transparent 45%);
+  pointer-events: none;
+}
+
+.card-shine::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 55%;
+  height: 100%;
+  background: linear-gradient(
+    75deg,
+    transparent 0%,
+    color-mix(in srgb, #fff 16%, transparent) 50%,
+    transparent 100%
+  );
+  transform: translateX(-180%) skewX(-20deg);
+  transition: transform 0.7s ease;
+  pointer-events: none;
+}
+
+.card-shine:hover::after {
+  transform: translateX(220%) skewX(-20deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-shine::after {
+    transition: none;
+  }
+}
+
 h1 {
   font-family: var(--sans);
   font-weight: 500;
@@ -607,10 +651,6 @@ button:disabled {
 .problem-form {
   max-width: 560px;
   margin-bottom: 32px;
-}
-
-.admin-problem-list {
-  max-width: 720px;
 }
 
 .admin-problem-row {

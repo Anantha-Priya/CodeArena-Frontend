@@ -45,7 +45,7 @@ export default function Login() {
   return (
     <div className="auth-page">
       <MatrixRainBackground />
-      <div className="auth-card">
+      <div className="auth-card card-shine">
         <h1>Log in</h1>
         {successMessage && <p className="banner banner--success">{successMessage}</p>}
         {error && <ErrorBanner message={error} />}

@@ -179,7 +179,7 @@ export default function Profile() {
 
       {profile.role === 'ADMIN' ? (
         <div className="profile-admin-dashboard">
-          <section className="profile-card profile-admin-dashboard__chart">
+          <section className="profile-card card-shine profile-admin-dashboard__chart">
             <h2>User Activity</h2>
             {allUsers === null ? (
               <ListSkeleton rows={3} />
@@ -193,7 +193,7 @@ export default function Profile() {
             )}
           </section>
 
-          <section className="profile-card profile-dashboard__metrics">
+          <section className="profile-card card-shine profile-dashboard__metrics">
             <h2>Stats</h2>
             <ul className="profile-metric-list">
               <li className="profile-metric">
@@ -216,7 +216,7 @@ export default function Profile() {
         </div>
       ) : (
         <div className="profile-dashboard">
-          <section className="profile-card profile-dashboard__chart">
+          <section className="profile-card card-shine profile-dashboard__chart">
             <h2>Submission Breakdown</h2>
             {submissionsLoadState === 'loading' && <ListSkeleton rows={3} />}
             {submissionsLoadState === 'error' && (
@@ -229,7 +229,7 @@ export default function Profile() {
             )}
           </section>
 
-          <section className="profile-card profile-dashboard__metrics">
+          <section className="profile-card card-shine profile-dashboard__metrics">
             <h2>Stats</h2>
             <ul className="profile-metric-list">
               <li className="profile-metric">
@@ -250,7 +250,7 @@ export default function Profile() {
             </ul>
           </section>
 
-          <section className="profile-card profile-dashboard__highlight">
+          <section className="profile-card card-shine profile-dashboard__highlight">
             <span className="profile-highlight__label">Problems Solved</span>
             <span className="profile-highlight__value">{profile.problemsSolved}</span>
             {coveragePct !== null && (

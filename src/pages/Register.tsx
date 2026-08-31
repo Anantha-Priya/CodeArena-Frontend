@@ -52,7 +52,7 @@ export default function Register() {
   return (
     <div className="auth-page">
       <MatrixRainBackground />
-      <div className="auth-card">
+      <div className="auth-card card-shine">
         <h1>Register</h1>
         {fieldErrors._general && <ErrorBanner message={fieldErrors._general} />}
         <form onSubmit={handleSubmit} className="form">

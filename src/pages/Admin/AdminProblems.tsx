@@ -117,7 +117,7 @@ export default function AdminProblems() {
       {loadState === 'loading' && <ListSkeleton />}
       {loadState === 'error' && <ErrorBanner message="Couldn't load problems." />}
       {loadState === 'loaded' && (
-        <ul className="problem-list admin-problem-list">
+        <ul className="problem-list">
           {problems.map((problem) => (
             <li key={problem.id} className="problem-card admin-problem-row">
               <span className="problem-card__title">{problem.title}</span>
