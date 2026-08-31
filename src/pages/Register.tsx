@@ -3,8 +3,8 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { register as registerRequest } from '../api/auth';
 import { ApiError } from '../api/client';
 import { getErrorMessage, parseFieldErrors } from '../api/errors';
-import { AmbientBackground } from '../components/AmbientBackground';
 import { ErrorBanner } from '../components/ErrorBanner';
+import { MatrixRainBackground } from '../components/MatrixRainBackground';
 import { PasswordField } from '../components/PasswordField';
 import { useAuth } from '../hooks/useAuth';
 
@@ -51,7 +51,7 @@ export default function Register() {
 
   return (
     <div className="auth-page">
-      <AmbientBackground />
+      <MatrixRainBackground />
       <div className="auth-card">
         <h1>Register</h1>
         {fieldErrors._general && <ErrorBanner message={fieldErrors._general} />}

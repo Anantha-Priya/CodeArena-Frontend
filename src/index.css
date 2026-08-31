@@ -171,6 +171,52 @@ body {
   }
 }
 
+/* Shared matrix code-rain background (MatrixRainBackground.tsx) — used by Login and
+   Register. A distinct effect from .ambient-bg above, not a variant of it. Decorative
+   only: negative z-index, pointer-events:none, no size that affects layout. The host page
+   just needs `position: relative; overflow: hidden`. */
+.matrix-rain {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.matrix-rain__column {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--accent);
+  white-space: pre;
+  /* Fades each column's leading/trailing edge instead of a hard cut, so it reads as a
+     drifting trail rather than a rigid strip of text sliding through. */
+  mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+  will-change: transform;
+  animation-name: matrix-rain-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes matrix-rain-fall {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .matrix-rain__column {
+    animation: none;
+  }
+}
+
 h1 {
   font-family: var(--sans);
   font-weight: 500;

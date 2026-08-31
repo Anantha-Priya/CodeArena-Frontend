@@ -3,8 +3,8 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { login as loginRequest } from '../api/auth';
 import { ApiError } from '../api/client';
 import { getErrorMessage } from '../api/errors';
-import { AmbientBackground } from '../components/AmbientBackground';
 import { ErrorBanner } from '../components/ErrorBanner';
+import { MatrixRainBackground } from '../components/MatrixRainBackground';
 import { PasswordField } from '../components/PasswordField';
 import { useAuth } from '../hooks/useAuth';
 
@@ -44,7 +44,7 @@ export default function Login() {
 
   return (
     <div className="auth-page">
-      <AmbientBackground />
+      <MatrixRainBackground />
       <div className="auth-card">
         <h1>Log in</h1>
         {successMessage && <p className="banner banner--success">{successMessage}</p>}
