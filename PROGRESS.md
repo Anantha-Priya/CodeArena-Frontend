@@ -670,8 +670,7 @@ history review).
 
 ## Phase 14: Deployment & Resume Polish
 
-- [ ] Done — production build, README, and commit history are done; public hosting is not yet
-  set up (see below).
+- [x] Done
 
 **Built:**
 - Verified the production build honors `VITE_API_BASE_URL` at build time: ran
@@ -695,20 +694,34 @@ history review).
     and a ranked leaderboard with tie-break logic, built against a real backend contract
     rather than mocked data."*
 
-**Decisions/deviations:**
-- Did not deploy to public hosting this phase. Two blockers found while working through the
-  checklist, both requiring a decision from the project owner rather than something resolvable
-  from inside this repo: (1) this repo has no `git remote` configured yet — nothing has been
-  pushed anywhere, which most static hosts (Vercel/Netlify) deploy from directly; (2) the backend
-  (`D:\Projects\CodeArena`) only runs locally (`localhost:8080`, local MySQL) — it has no
-  production deployment of its own, so a deployed frontend would have nothing real to talk to
-  yet (`VITE_API_BASE_URL` would have no valid production value). Deploying is also the kind of
-  action (creating/using hosting + Git host accounts, publishing something publicly reachable)
-  that genuinely needs the project owner's own accounts and go-ahead, not something to do
-  unilaterally.
-- No screenshot/live link added to the README yet for the same reason — there's nothing live to
-  link or screenshot until hosting is decided.
+- Pushed this repo to GitHub (https://github.com/Anantha-Priya/CodeArena-Frontend) — it had no
+  remote before this phase. Repo created by the project owner (empty, no auto-generated
+  README/.gitignore, to avoid a conflicting first push); I added it as `origin` and pushed
+  `master`.
+- Deployed to Vercel via the CLI (`npx vercel --yes --name codearena-frontend`), logged in as
+  the project owner (`vercel login`, device-code flow they completed in-browser — not something
+  doable on their behalf). First deploy on a new Vercel project goes straight to production:
+  live at **https://codearena-frontend-mu.vercel.app**. Verified in-browser after deploy: loads,
+  redirects an unauthenticated visitor to `/login` (client-side routing/SPA fallback works on
+  Vercel's static hosting), no console errors.
+- Linked the live URL from `README.md`, with an explicit caveat that it's UI-only until the
+  backend has its own production deployment (see next point).
 
-**Next:** Decide a path for actual public deployment (push this repo + the backend somewhere,
-pick hosts for each, wire the frontend's `VITE_API_BASE_URL` to the deployed backend) — the
-14-phase build itself is otherwise complete.
+**Decisions/deviations:**
+- The backend (`D:\Projects\CodeArena`) still only runs locally (`localhost:8080`, local MySQL)
+  — deploying it is out of scope for this session (this repo's own CLAUDE.md says never to edit
+  code in that repo from here) and wasn't asked for. `VITE_API_BASE_URL` was left unset for the
+  Vercel deploy, so the live site falls back to its `http://localhost:8080` default — meaning
+  it'll only show real data for someone who happens to be running the backend locally while
+  viewing it. Documented this honestly in the README rather than silently shipping a frontend
+  that always shows "Backend: unreachable" with no explanation.
+- `vercel git connect` (to auto-redeploy on every push to `master`) failed from the CLI —
+  connecting a GitHub repo to a Vercel project requires authorizing the Vercel GitHub App in the
+  browser, which the CLI can't complete headlessly. Left as a manual optional step in Vercel's
+  dashboard (Project Settings → Git) rather than something to force through. Redeploying is a
+  one-line `npx vercel --prod` in the meantime.
+- No screenshot embedded in the README — the live link is more useful than a screenshot that
+  goes stale, and satisfies the checklist's "link/screenshot" requirement either way.
+
+**Next:** None for this phase. If/when the backend gets a real deployment, set
+`VITE_API_BASE_URL` as a Vercel environment variable for this project and redeploy.

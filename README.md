@@ -1,5 +1,10 @@
 # CodeArena Frontend
 
+**Live:** https://codearena-frontend-mu.vercel.app *(UI only — the backend it talks to runs
+locally and isn't deployed yet, so API-dependent screens will show "Backend: unreachable" unless
+you're running the backend yourself and set `VITE_API_BASE_URL` accordingly. See
+[Status](#status).)*
+
 A React + TypeScript frontend for **CodeArena**, a coding-contest platform. It's the client for
 the [CodeArena Spring Boot REST API](../CodeArena) — a separate backend project with its own
 repo and its own JWT-secured, role-based API. Users register, browse a problem catalog, join
@@ -104,5 +109,11 @@ npm run preview    # serve the production build locally
 
 All 14 build phases are complete, plus several rounds of visual/UX polish afterward (see
 [`PROGRESS.md`](PROGRESS.md) for the phase-by-phase log and [`CodeArena_Frontend_Build_Guide.md`](CodeArena_Frontend_Build_Guide.md)
-for the original roadmap). Not yet deployed to a public host — see `PROGRESS.md`'s Phase 14 entry
-for what's done and what's still open on that front.
+for the original roadmap).
+
+Deployed to Vercel at the link above, built from this repo. The backend
+([`CodeArena`](../CodeArena)) only runs locally right now — it has no production deployment of
+its own — so the live frontend has nothing real to fetch from yet. Once the backend is deployed,
+point the Vercel project's `VITE_API_BASE_URL` environment variable at it and redeploy
+(`npx vercel --prod` from this repo, or push to `master` once auto-deploy-on-push is connected in
+the Vercel dashboard).
