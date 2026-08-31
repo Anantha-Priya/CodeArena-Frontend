@@ -14,6 +14,9 @@ import type { UserProfile } from '../types/user';
 const SubmissionStatusChart = lazy(() =>
   import('../components/SubmissionStatusChart').then((module) => ({ default: module.SubmissionStatusChart })),
 );
+const UserActivityChart = lazy(() =>
+  import('../components/UserActivityChart').then((module) => ({ default: module.UserActivityChart })),
+);
 
 type LoadState = 'loading' | 'loaded' | 'error';
 
@@ -37,6 +40,22 @@ const CONTESTS_JOINED_ICON = (
   </svg>
 );
 
+const TOTAL_PROBLEMS_ICON = (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+    <polyline points="16 18 22 12 16 6" />
+    <polyline points="8 6 2 12 8 18" />
+  </svg>
+);
+
+const TOTAL_USERS_ICON = (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+);
+
 function getInitials(username: string): string {
   return username.slice(0, 2).toUpperCase();
 }
@@ -47,7 +66,8 @@ export default function Profile() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [submissionsLoadState, setSubmissionsLoadState] = useState<LoadState>('loading');
   const [totalProblems, setTotalProblems] = useState<number | null>(null);
-  const [platformTotals, setPlatformTotals] = useState<{ contests: number; users: number } | null>(null);
+  const [totalContests, setTotalContests] = useState<number | null>(null);
+  const [allUsers, setAllUsers] = useState<UserProfile[] | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -111,7 +131,10 @@ export default function Profile() {
 
     Promise.all([listContests(), listUsers()])
       .then(([contests, users]) => {
-        if (!cancelled) setPlatformTotals({ contests: contests.length, users: users.length });
+        if (!cancelled) {
+          setTotalContests(contests.length);
+          setAllUsers(users);
+        }
       })
       .catch(() => {});
 
@@ -154,28 +177,63 @@ export default function Profile() {
           </div>
         </div>
         <div className="profile-header__actions">
-          <Link to="/problems" className="button-link button-link--secondary">
-            Browse Problems
-          </Link>
-          <Link to="/submissions/my" className="button-link button-link--secondary">
-            My Submissions
-          </Link>
+          {profile.role === 'ADMIN' ? (
+            <>
+              <Link to="/admin/problems" className="button-link button-link--secondary">
+                Create Problem
+              </Link>
+              <Link to="/admin/contests" className="button-link button-link--secondary">
+                Create Contest
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link to="/problems" className="button-link button-link--secondary">
+                Browse Problems
+              </Link>
+              <Link to="/submissions/my" className="button-link button-link--secondary">
+                My Submissions
+              </Link>
+            </>
+          )}
         </div>
       </header>
 
       {profile.role === 'ADMIN' ? (
-        <div className="profile-admin-stats">
-          <section className="profile-card profile-admin-stat">
-            <span className="profile-highlight__label">Total Problems</span>
-            <span className="profile-highlight__value">{totalProblems ?? '—'}</span>
+        <div className="profile-admin-dashboard">
+          <section className="profile-card profile-admin-dashboard__chart">
+            <h2>User Activity</h2>
+            {allUsers === null ? (
+              <ListSkeleton rows={3} />
+            ) : (
+              <Suspense fallback={<ListSkeleton rows={3} />}>
+                <UserActivityChart
+                  activeCount={allUsers.filter((u) => u.problemsSolved >= 1).length}
+                  nonActiveCount={allUsers.filter((u) => u.problemsSolved === 0).length}
+                />
+              </Suspense>
+            )}
           </section>
-          <section className="profile-card profile-admin-stat">
-            <span className="profile-highlight__label">Total Contests</span>
-            <span className="profile-highlight__value">{platformTotals?.contests ?? '—'}</span>
-          </section>
-          <section className="profile-card profile-admin-stat">
-            <span className="profile-highlight__label">Total Users</span>
-            <span className="profile-highlight__value">{platformTotals?.users ?? '—'}</span>
+
+          <section className="profile-card profile-dashboard__metrics">
+            <h2>Stats</h2>
+            <ul className="profile-metric-list">
+              <li className="profile-metric">
+                <span className="profile-metric__icon">{TOTAL_PROBLEMS_ICON}</span>
+                <span className="profile-metric__label">Total Problems</span>
+                <span className="profile-metric__value">{totalProblems ?? '—'}</span>
+              </li>
+              <li className="profile-metric">
+                <span className="profile-metric__icon">{CONTESTS_JOINED_ICON}</span>
+                <span className="profile-metric__label">Total Contests</span>
+                <span className="profile-metric__value">{totalContests ?? '—'}</span>
+              </li>
+              <li className="profile-metric">
+                <span className="profile-metric__icon">{TOTAL_USERS_ICON}</span>
+                <span className="profile-metric__label">Total Users</span>
+                <span className="profile-metric__value">{allUsers?.length ?? '—'}</span>
+              </li>
+            </ul>
           </section>
         </div>
       ) : (

@@ -1035,28 +1035,20 @@ button:disabled {
   color: var(--text);
 }
 
-/* Admin's platform-wide totals — deliberately its own class rather than reusing
-   .profile-dashboard, so it doesn't inherit that grid's 2-column tablet breakpoint (which
-   would orphan the third stat the same way auto-fit did before on Profile's old layout). */
-.profile-admin-stats {
+/* Admin's chart + compact stats panel — its own 2-column grid rather than reusing
+   .profile-dashboard's 3-column one, since only 2 cards live here and a leftover third
+   track would just be dead space (the same orphan-space failure fixed elsewhere). */
+.profile-admin-dashboard {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1.4fr 1fr;
   gap: 20px;
   margin-top: 24px;
 }
 
-@media (max-width: 640px) {
-  .profile-admin-stats {
+@media (max-width: 720px) {
+  .profile-admin-dashboard {
     grid-template-columns: 1fr;
   }
-}
-
-.profile-admin-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  text-align: center;
 }
 
 .leaderboard-row--me {
