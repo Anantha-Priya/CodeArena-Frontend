@@ -134,14 +134,13 @@ partial patch). 200 + `ProblemResponse`, 400, 401, 403, 404.
 // request
 {
   "title": "string", "description": "string",
-  "startTime": "2026-01-01T10:00:00", "endTime": "2026-01-01T12:00:00"
+  "startTime": "2026-01-01T10:00:00Z", "endTime": "2026-01-01T12:00:00Z"
 }
 ```
-`startTime`/`endTime` format: `YYYY-MM-DDTHH:mm:ss` — **no timezone offset, no trailing `Z`**.
-This is a plain `LocalDateTime`, compared directly against the server's own local clock with
-no zone conversion. If your frontend's `Date` objects produce ISO strings with a `Z` or `+00:00`
-suffix, strip it before sending, and be aware the value is interpreted as the **server's**
-local time, not UTC.
+`startTime`/`endTime` format: ISO-8601 `Instant`, e.g. `2026-01-01T10:00:00Z` — always UTC,
+always with a trailing `Z`. This is a `java.time.Instant`, an unambiguous point on the UTC
+timeline, so no zone conversion or guessing is needed on either side. A `Date` object's
+`.toISOString()` already produces this format — send it as-is, don't strip the `Z`.
 
 `endTime` must be strictly after `startTime` or you get 400 with message
 `"end_time must be after start_time"`. 201 + `ContestResponse` on success.
@@ -150,7 +149,7 @@ local time, not UTC.
 ```json
 {
   "id": 1, "title": "string", "description": "string",
-  "startTime": "2026-01-01T10:00:00", "endTime": "2026-01-01T12:00:00",
+  "startTime": "2026-01-01T10:00:00Z", "endTime": "2026-01-01T12:00:00Z",
   "createdAt": "2026-08-27T20:10:52.624669"
 }
 ```
