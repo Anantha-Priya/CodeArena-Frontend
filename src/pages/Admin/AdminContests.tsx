@@ -27,11 +27,15 @@ interface FieldErrors {
   _general?: string;
 }
 
-// datetime-local gives "YYYY-MM-DDTHH:mm" (no seconds) — append them so the payload
-// matches exactly what the backend documents. Still plain local wall-clock text, no
-// timezone conversion anywhere — the backend interprets it as its own local time.
+// datetime-local gives "YYYY-MM-DDTHH:mm" in the browser's local wall-clock time, with no
+// timezone info. The backend now expects UTC ISO-8601 instants with a trailing Z (see
+// API_REFERENCE.md), so convert rather than just appending seconds/Z — otherwise the
+// wall-clock value would be misread as UTC and land hours off in any other timezone.
 function toBackendDateTime(value: string): string {
-  return value.length === 16 ? `${value}:00` : value;
+  if (!value) return value;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return parsed.toISOString();
 }
 
 function validate(form: ContestFormState): FieldErrors {

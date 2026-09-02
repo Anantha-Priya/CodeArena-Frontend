@@ -15,10 +15,9 @@ export interface ContestStatusInfo {
   hasJoined: boolean;
 }
 
-// Matches the backend's ContestRequest. startTime/endTime are "YYYY-MM-DDTHH:mm:ss" with
-// no timezone offset — the backend compares them directly against its own local clock with
-// no zone conversion, so these must stay plain local wall-clock strings end to end (see
-// API_REFERENCE.md's gotcha on this).
+// Matches the backend's ContestRequest. startTime/endTime are UTC ISO-8601 instants with a
+// trailing Z (e.g. "2026-09-02T06:22:00Z") — the backend deserializes them as java.time.Instant,
+// so any local wall-clock value must be converted to UTC before being sent (see API_REFERENCE.md).
 export interface ContestPayload {
   title: string;
   description: string;
