@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { ApiError } from '../../api/client';
-import { createContest, listContests } from '../../api/contests';
+import { createContest, deleteContest, listContests } from '../../api/contests';
 import { getErrorMessage } from '../../api/errors';
 import { BackButton } from '../../components/BackButton';
 import { ContestProblemsPanel } from '../../components/ContestProblemsPanel';
@@ -59,6 +59,7 @@ export default function AdminContests() {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [managingId, setManagingId] = useState<number | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   async function refresh() {
     setLoadState('loading');
@@ -119,6 +120,31 @@ export default function AdminContests() {
       }
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function handleDelete(contest: Contest) {
+    if (
+      !window.confirm(
+        `Delete "${contest.title}"? Its participants and attached problems will be removed too. This can't be undone.`
+      )
+    ) {
+      return;
+    }
+
+    setActionError(null);
+    try {
+      await deleteContest(contest.id);
+      if (managingId === contest.id) {
+        setManagingId(null);
+      }
+      await refresh();
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 403) {
+        setActionError('You are not authorized to perform this action.');
+      } else {
+        setActionError(getErrorMessage(err, 'Failed to delete the contest.'));
+      }
     }
   }
 
@@ -188,6 +214,8 @@ export default function AdminContests() {
 
       <h2 className="admin-contests__list-heading">Existing Contests</h2>
 
+      {actionError && <ErrorBanner message={actionError} />}
+
       {loadState === 'loading' && <ListSkeleton />}
       {loadState === 'error' && <ErrorBanner message="Couldn't load contests." />}
       {loadState === 'loaded' &&
@@ -205,6 +233,9 @@ export default function AdminContests() {
                     onClick={() => setManagingId(managingId === contest.id ? null : contest.id)}
                   >
                     {managingId === contest.id ? 'Hide Problems' : 'Manage Problems'}
+                  </button>
+                  <button type="button" className="button--danger" onClick={() => handleDelete(contest)}>
+                    Delete
                   </button>
                 </div>
                 {managingId === contest.id && <ContestProblemsPanel contestId={contest.id} />}

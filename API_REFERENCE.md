@@ -125,7 +125,12 @@ infer page count from `content.length`.
 **PUT `/api/problems/{id}`** — admin only. Same request body as POST (full replace, not
 partial patch). 200 + `ProblemResponse`, 400, 401, 403, 404.
 
-**DELETE `/api/problems/{id}`** — admin only. 204 empty body, 401, 403, 404.
+**DELETE `/api/problems/{id}`** — admin only. 204 empty body, 401, 403, 404. **409** if any
+submission (practice or contest) has ever been made against this problem — once a problem has
+real grading history attached, it can't be deleted; there's no "delete anyway" option, since
+that would mean silently losing part of a user's submission history. If the problem has no
+submissions but is still attached to one or more contests, it's silently detached from all of
+them first (that association alone has no history to lose) and then deleted.
 
 ### Contests
 
@@ -205,6 +210,19 @@ on success. Allowed for `UPCOMING` and `ACTIVE` contests. 400 if the contest has
 Plain array, already sorted by rank ascending — don't re-sort client-side. Includes every
 participant (even ones with 0 accepted submissions, score `0`), not just ones who submitted.
 404 if the contest doesn't exist.
+
+**DELETE `/api/contests/{id}`** — admin only. 204 empty body on success, 404 if no contest
+with that id. Also removes this contest's `contest_participants` and `contest_problems` rows
+(both have a `NOT NULL` `contest_id`, so they can't be left behind). Submissions already made
+in this contest are **not** deleted — their `contest_id` is set to `null` and they become
+practice submissions, keeping the user's submission history intact. There is no undo.
+
+**DELETE `/api/contests/{contestId}/problems/{problemId}`** — admin only. No request body.
+204 empty body on success. 404 if the contest or problem doesn't exist, or if that problem
+isn't currently attached to that contest (mirrors the 409 you get from the inverse operation,
+`POST .../problems/{problemId}`, when attaching something already attached). Submissions
+already made against that problem in that contest are untouched — they reference the contest
+and problem directly, not this association, so detaching can't orphan them.
 
 ### Submissions
 

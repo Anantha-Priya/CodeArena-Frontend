@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ApiError } from '../api/client';
-import { attachProblemToContest, getContestProblems } from '../api/contests';
+import { attachProblemToContest, detachProblemFromContest, getContestProblems } from '../api/contests';
 import { getErrorMessage } from '../api/errors';
 import { listProblems } from '../api/problems';
 import type { Problem } from '../types/problem';
@@ -17,7 +17,8 @@ export function ContestProblemsPanel({ contestId }: { contestId: number }) {
   const [allProblems, setAllProblems] = useState<Problem[]>([]);
   const [attachedIds, setAttachedIds] = useState<Set<number>>(new Set());
   const [loadState, setLoadState] = useState<LoadState>('loading');
-  const [attachingId, setAttachingId] = useState<number | null>(null);
+  // Tracks whichever problem row is mid-flight, in either direction (attach or detach).
+  const [busyId, setBusyId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export function ContestProblemsPanel({ contestId }: { contestId: number }) {
   }, [contestId]);
 
   async function handleAttach(problemId: number) {
-    setAttachingId(problemId);
+    setBusyId(problemId);
     setError(null);
 
     try {
@@ -57,7 +58,29 @@ export function ContestProblemsPanel({ contestId }: { contestId: number }) {
         setError(getErrorMessage(err, 'Failed to attach the problem.'));
       }
     } finally {
-      setAttachingId(null);
+      setBusyId(null);
+    }
+  }
+
+  async function handleDetach(problemId: number) {
+    setBusyId(problemId);
+    setError(null);
+
+    try {
+      await detachProblemFromContest(contestId, problemId);
+      setAttachedIds((current) => {
+        const next = new Set(current);
+        next.delete(problemId);
+        return next;
+      });
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 403) {
+        setError('You are not authorized to perform this action.');
+      } else {
+        setError(getErrorMessage(err, 'Failed to detach the problem.'));
+      }
+    } finally {
+      setBusyId(null);
     }
   }
 
@@ -79,7 +102,7 @@ export function ContestProblemsPanel({ contestId }: { contestId: number }) {
         <ul className="problem-list">
           {allProblems.map((problem) => {
             const attached = attachedIds.has(problem.id);
-            const attaching = attachingId === problem.id;
+            const busy = busyId === problem.id;
 
             return (
               <li key={problem.id} className="problem-card admin-problem-row">
@@ -87,14 +110,20 @@ export function ContestProblemsPanel({ contestId }: { contestId: number }) {
                 <DifficultyBadge difficulty={problem.difficulty} />
                 <span className="problem-card__topic">{problem.topic}</span>
                 <div className="admin-problem-row__actions">
-                  <button
-                    type="button"
-                    className={attached ? 'button--secondary' : undefined}
-                    disabled={attached || attaching}
-                    onClick={() => handleAttach(problem.id)}
-                  >
-                    {attached ? 'Attached' : attaching ? 'Attaching…' : 'Attach'}
-                  </button>
+                  {attached ? (
+                    <button
+                      type="button"
+                      className="button--danger"
+                      disabled={busy}
+                      onClick={() => handleDetach(problem.id)}
+                    >
+                      {busy ? 'Detaching…' : 'Detach'}
+                    </button>
+                  ) : (
+                    <button type="button" disabled={busy} onClick={() => handleAttach(problem.id)}>
+                      {busy ? 'Attaching…' : 'Attach'}
+                    </button>
+                  )}
                 </div>
               </li>
             );

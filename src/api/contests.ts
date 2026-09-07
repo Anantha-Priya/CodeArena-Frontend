@@ -30,8 +30,16 @@ export function createContest(payload: ContestPayload): Promise<Contest> {
   return apiClient.post('/api/contests', payload);
 }
 
+export function deleteContest(id: number): Promise<void> {
+  return apiClient.delete(`/api/contests/${id}`);
+}
+
 export function attachProblemToContest(contestId: number, problemId: number): Promise<void> {
   return apiClient.post(`/api/contests/${contestId}/problems/${problemId}`);
+}
+
+export function detachProblemFromContest(contestId: number, problemId: number): Promise<void> {
+  return apiClient.delete(`/api/contests/${contestId}/problems/${problemId}`);
 }
 
 // Plain array, already sorted by rank ascending — never re-sort client-side. Fetch once on
