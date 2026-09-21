@@ -83,6 +83,10 @@ export default function AdminProblems() {
   function startEdit(problem: Problem) {
     setCreating(false);
     setEditingProblem(problem);
+    // The edit form renders up near the top of the page, but the Edit button that opens
+    // it lives down in the problem list — scroll up so it's actually in view instead of
+    // making the admin find it themselves.
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   return (
